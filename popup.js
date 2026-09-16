@@ -22,21 +22,6 @@ function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
 }
 
-function removeWord(cat, type, word) {
-  const idx = cat[type].indexOf(word);
-  if (idx !== -1) cat[type].splice(idx, 1);
-  save();
-  renderCategories();
-}
-
-function addWord(cat, type, rawWord) {
-  const word = rawWord.trim();
-  if (!word) return;
-  if (!cat[type].includes(word)) cat[type].push(word);
-  save();
-  renderCategories();
-}
-
 function removeCategory(cat) {
   if (!confirm(`"${cat.label}" 카테고리를 삭제할까요?`)) return;
   const idx = settings.categories.indexOf(cat);
@@ -115,6 +100,9 @@ function importCategories(file) {
   reader.readAsText(file);
 }
 
+// 단어 하나 추가/삭제할 때 카테고리 목록 전체를 다시 그리면 열려있던 <details>가
+// 전부 닫히고 팝업 레이아웃이 크게 흔들려 팝업이 닫혀버리는 문제가 있었다.
+// 그래서 이 태그 목록만 직접 DOM을 조작해서 갱신한다 (전체 재렌더링 없음).
 function renderWordType(cat, type, title, cls, words) {
   const wrap = document.createElement("div");
   wrap.className = "word-group " + cls;
@@ -125,7 +113,20 @@ function renderWordType(cat, type, title, cls, words) {
 
   const tagList = document.createElement("div");
   tagList.className = "tag-list";
-  words.forEach((word) => {
+
+  function updateEmptyState() {
+    const empty = tagList.querySelector(".tag-empty");
+    if (cat[type].length === 0 && !empty) {
+      const span = document.createElement("span");
+      span.className = "tag-empty";
+      span.textContent = "(없음)";
+      tagList.appendChild(span);
+    } else if (cat[type].length > 0 && empty) {
+      empty.remove();
+    }
+  }
+
+  function addTagEl(word) {
     const tag = document.createElement("span");
     tag.className = "tag";
     tag.textContent = word;
@@ -135,17 +136,20 @@ function renderWordType(cat, type, title, cls, words) {
     x.className = "tag-remove";
     x.textContent = "×";
     x.title = "삭제";
-    x.addEventListener("click", () => removeWord(cat, type, word));
+    x.addEventListener("click", () => {
+      const idx = cat[type].indexOf(word);
+      if (idx !== -1) cat[type].splice(idx, 1);
+      save();
+      tag.remove();
+      updateEmptyState();
+    });
 
     tag.appendChild(x);
     tagList.appendChild(tag);
-  });
-  if (!words.length) {
-    const empty = document.createElement("span");
-    empty.className = "tag-empty";
-    empty.textContent = "(없음)";
-    tagList.appendChild(empty);
   }
+
+  words.forEach(addTagEl);
+  updateEmptyState();
   wrap.appendChild(tagList);
 
   const addRow = document.createElement("div");
@@ -157,8 +161,14 @@ function renderWordType(cat, type, title, cls, words) {
   addBtn.type = "button";
   addBtn.textContent = "+";
   const submit = () => {
-    addWord(cat, type, input.value);
+    const word = input.value.trim();
     input.value = "";
+    input.focus();
+    if (!word || cat[type].includes(word)) return;
+    cat[type].push(word);
+    save();
+    addTagEl(word);
+    updateEmptyState();
   };
   addBtn.addEventListener("click", submit);
   input.addEventListener("keydown", (e) => {
