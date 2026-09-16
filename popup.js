@@ -17,10 +17,28 @@ function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
 }
 
+function wordGroup(title, words, extraClass) {
+  const div = document.createElement("div");
+  div.className = "word-group" + (extraClass ? " " + extraClass : "");
+
+  const b = document.createElement("b");
+  b.textContent = title;
+
+  const span = document.createElement("span");
+  span.textContent = words.length ? words.join(", ") : "(없음)";
+
+  div.appendChild(b);
+  div.appendChild(span);
+  return div;
+}
+
 function renderCategories() {
   categoryList.innerHTML = "";
   for (const [cat, data] of Object.entries(HSF_DEFAULT_WORDLISTS)) {
     const li = document.createElement("li");
+
+    const header = document.createElement("div");
+    header.className = "cat-header";
 
     const label = document.createElement("span");
     label.textContent = data.label;
@@ -33,8 +51,28 @@ function renderCategories() {
       save();
     });
 
-    li.appendChild(label);
-    li.appendChild(input);
+    header.appendChild(label);
+    header.appendChild(input);
+
+    const details = document.createElement("details");
+    details.className = "cat-words";
+
+    const summary = document.createElement("summary");
+    summary.textContent = "포함된 단어 보기";
+    details.appendChild(summary);
+
+    details.appendChild(
+      wordGroup("집단 식별어 (단독으로는 차단 안 함): ", data.groupTerms, "wg-group")
+    );
+    details.appendChild(
+      wordGroup("명백한 멸칭 (즉시 차단): ", data.explicitSlurs, "wg-explicit")
+    );
+    details.appendChild(
+      wordGroup("모호한 표현 (집단어와 같이 나올 때만 차단): ", data.ambiguousSlurs, "wg-ambiguous")
+    );
+
+    li.appendChild(header);
+    li.appendChild(details);
     categoryList.appendChild(li);
   }
 }

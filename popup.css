@@ -1,5 +1,7 @@
 body {
-  width: 300px;
+  width: 340px;
+  max-height: 520px;
+  overflow-y: auto;
   padding: 14px;
   font-family: -apple-system, "Malgun Gothic", sans-serif;
   color: #222;
@@ -37,11 +39,50 @@ h2 {
 }
 
 .category-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 0;
   font-size: 13px;
+}
+
+.cat-words {
+  margin-top: 4px;
+}
+
+.cat-words summary {
+  font-size: 11px;
+  color: #2980b9;
+  cursor: pointer;
+  user-select: none;
+}
+
+.word-group {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 4px 0;
+  word-break: keep-all;
+}
+
+.word-group b {
+  display: block;
+  color: #555;
+}
+
+.word-group.wg-explicit span {
+  color: #c0392b;
+}
+
+.word-group.wg-ambiguous span {
+  color: #d68910;
+}
+
+.word-group.wg-group span {
+  color: #555;
 }
 
 .word-list li {
