@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>혐오표현 필터</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>혐오표현 필터</h1>
+    <label class="switch">
+      <input type="checkbox" id="masterToggle" />
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <p class="note">
+    지역명·성별·국적 같은 중립 단어는 차단하지 않고, 실제 멸칭이나 "중립 단어 + 멸칭" 조합이
+    함께 등장할 때만 글을 블러 처리합니다. 설정 변경 후에는 페이지를 새로고침 해야 적용됩니다.
+  </p>
+
+  <section>
+    <h2>카테고리</h2>
+    <ul id="categoryList" class="category-list"></ul>
+  </section>
+
+  <section>
+    <h2>사용자 지정 차단 단어</h2>
+    <div class="add-row">
+      <input type="text" id="customWordInput" placeholder="차단할 단어 입력" />
+      <button id="addWordBtn">추가</button>
+    </div>
+    <ul id="customWordList" class="word-list"></ul>
+  </section>
+
+  <script src="wordlists.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

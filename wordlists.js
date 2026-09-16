@@ -1,0 +1,35 @@
+// 기본 단어 목록
+//
+// 설계 원칙:
+// - groupTerms(집단 식별어: 지역명/성별/국적 등)는 그 자체로는 절대 차단하지 않는다.
+//   단독으로 등장해도 정상적인 문장일 수 있기 때문이다. (예: "전라도 여행 다녀왔어요")
+// - explicitSlurs(명백한 멸칭/합성 비하어)는 다른 용도로 쓰일 여지가 거의 없으므로
+//   등장 즉시 차단 대상으로 판단한다.
+// - ambiguousSlurs(다른 뜻으로도 쓰이는 단어, 예: "홍어"=생선)는 groupTerms와
+//   같은 블록 안에 함께 등장할 때만 차단 대상으로 판단한다.
+const HSF_DEFAULT_WORDLISTS = {
+  region: {
+    label: "지역차별",
+    groupTerms: ["전라도", "전라도민", "전라남도", "전라북도", "호남", "호남인", "광주시민"],
+    explicitSlurs: ["전라디언", "전라디안"],
+    ambiguousSlurs: ["홍어"]
+  },
+  gender: {
+    label: "성차별",
+    groupTerms: ["여성", "여자", "남성", "남자"],
+    explicitSlurs: ["김치녀", "한남충", "보슬아치", "된장녀", "맘충", "꼴페미", "재기해"],
+    ambiguousSlurs: []
+  },
+  nationality: {
+    label: "인종·국적차별",
+    groupTerms: ["중국인", "일본인", "조선족", "흑인", "동남아", "베트남인", "외국인노동자", "이주민"],
+    explicitSlurs: ["짱깨", "쪽바리", "떼놈", "짱꼴라", "코쟁이", "깜둥이"],
+    ambiguousSlurs: []
+  },
+  disability: {
+    label: "장애 비하",
+    groupTerms: ["장애인", "장애우"],
+    explicitSlurs: ["장애자"],
+    ambiguousSlurs: []
+  }
+};
