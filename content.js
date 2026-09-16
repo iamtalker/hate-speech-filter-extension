@@ -1,10 +1,5 @@
 (function () {
   const STORAGE_KEY = "hsfSettings";
-  const DEFAULT_SETTINGS = {
-    enabled: true,
-    categories: { region: true, gender: true, nationality: true, disability: false },
-    customWords: []
-  };
 
   const BLOCK_SELECTOR = "p, li, div, span, td, th, blockquote, h1, h2, h3, h4, h5, h6, article, dd, dt";
 
@@ -20,14 +15,16 @@
 
   function compileRules(settings) {
     const rules = [];
-    for (const [cat, data] of Object.entries(HSF_DEFAULT_WORDLISTS)) {
+    for (const cat of Object.keys(HSF_DEFAULT_WORDLISTS)) {
       if (!settings.categories[cat]) continue;
+      const data = HSF_DEFAULT_WORDLISTS[cat];
+      const merged = HSF_getMergedLists(cat, settings.overrides);
       rules.push({
         cat,
         label: data.label,
-        explicit: buildRegex(data.explicitSlurs),
-        group: buildRegex(data.groupTerms),
-        ambiguous: buildRegex(data.ambiguousSlurs)
+        explicit: buildRegex(merged.explicitSlurs),
+        group: buildRegex(merged.groupTerms),
+        ambiguous: buildRegex(merged.ambiguousSlurs)
       });
     }
     if (settings.customWords && settings.customWords.length) {
@@ -67,7 +64,7 @@
 
     const badge = document.createElement("span");
     badge.className = "hsf-badge";
-    badge.textContent = "🙈 혜오표현 감지(" + rule.label + ") · 클릭하여 보기";
+    badge.textContent = "🙈 혐오표현 감지(" + rule.label + ") · 클릭하여 보기";
     badge.addEventListener("click", function (ev) {
       ev.stopPropagation();
       const hidden = inner.classList.toggle("hsf-hidden-content");
@@ -116,12 +113,7 @@
   }
 
   chrome.storage.sync.get(STORAGE_KEY, (data) => {
-    const stored = data[STORAGE_KEY] || {};
-    const settings = {
-      enabled: stored.enabled !== undefined ? stored.enabled : DEFAULT_SETTINGS.enabled,
-      categories: Object.assign({}, DEFAULT_SETTINGS.categories, stored.categories || {}),
-      customWords: stored.customWords || DEFAULT_SETTINGS.customWords
-    };
+    const settings = HSF_normalizeSettings(data[STORAGE_KEY]);
     start(settings);
   });
 })();
