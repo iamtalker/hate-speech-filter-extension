@@ -39,7 +39,7 @@
   }
 
   function isInIgnoredContext(el) {
-    return !!el.closest("script, style, textarea, input, [contenteditable], .hsf-badge");
+    return !!el.closest("script, style, textarea, input, [contenteditable], .hsf-badge, .hsf-inner");
   }
 
   function applyBlur(el, rule) {
@@ -47,10 +47,12 @@
 
     const inner = document.createElement("span");
     inner.className = "hsf-inner hsf-hidden-content";
+    inner.dataset.hsfProcessed = "1";
     while (el.firstChild) inner.appendChild(el.firstChild);
 
     const badge = document.createElement("span");
     badge.className = "hsf-badge";
+    badge.dataset.hsfProcessed = "1";
     badge.textContent = "🙈 혐오표현 감지(" + rule.label + ") · 클릭하여 보기";
     badge.addEventListener("click", function (ev) {
       ev.stopPropagation();
