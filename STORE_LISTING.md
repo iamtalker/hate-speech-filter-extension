@@ -33,7 +33,7 @@
 
 ## 카테고리 (스토어 등록 시 선택)
 
-- Social & Communication
+- **Communication** (Productivity 그룹) — 2026년 개편된 카테고리 체계 기준 (총 17개, Productivity/Lifestyle/Make Chrome Yours 3그룹)
 
 ## 개인정보처리방침 URL
 
