@@ -32,7 +32,17 @@ h2 {
   margin: 6px 0 4px;
 }
 
-.category-list, .word-list {
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-header h2 {
+  margin: 12px 0 6px;
+}
+
+.category-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -43,11 +53,50 @@ h2 {
   border-bottom: 1px solid #f0f0f0;
 }
 
+.category-list li.empty-state {
+  color: #999;
+  font-size: 12px;
+  border-bottom: none;
+}
+
 .cat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
   font-size: 13px;
+}
+
+.cat-label-input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-family: inherit;
+  color: #222;
+  padding: 2px 4px;
+  border-radius: 3px;
+  min-width: 0;
+}
+
+.cat-label-input:hover, .cat-label-input:focus {
+  background: #f5f5f5;
+  outline: none;
+}
+
+.cat-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cat-delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
 }
 
 .cat-words {
@@ -133,30 +182,13 @@ h2 {
 }
 
 .reset-btn {
-  margin-top: 4px;
   border: none;
   background: none;
   color: #999;
   font-size: 10px;
   cursor: pointer;
   text-decoration: underline;
-}
-
-.word-list li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3px 0;
-  font-size: 12px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.word-list button {
-  border: none;
-  background: none;
-  color: #c0392b;
-  cursor: pointer;
-  font-size: 12px;
+  white-space: nowrap;
 }
 
 .add-row {

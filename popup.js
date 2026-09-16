@@ -6,30 +6,21 @@ const WORD_TYPES = [
   { key: "ambiguousSlurs", title: "모호한 표현 (집단어와 같이 나올 때만 차단)", cls: "wg-ambiguous" }
 ];
 
-let settings = HSF_normalizeSettings({});
+let settings = { enabled: true, categories: [] };
 
 const masterToggle = document.getElementById("masterToggle");
 const categoryList = document.getElementById("categoryList");
-const customWordInput = document.getElementById("customWordInput");
-const addWordBtn = document.getElementById("addWordBtn");
-const customWordList = document.getElementById("customWordList");
+const resetAllBtn = document.getElementById("resetAllBtn");
+const newCategoryInput = document.getElementById("newCategoryInput");
+const addCategoryBtn = document.getElementById("addCategoryBtn");
 
 function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
 }
 
-function isDefaultWord(cat, type, word) {
-  return HSF_DEFAULT_WORDLISTS[cat][type].includes(word);
-}
-
 function removeWord(cat, type, word) {
-  const ov = settings.overrides[cat];
-  const addedIdx = ov.added[type].indexOf(word);
-  if (addedIdx !== -1) {
-    ov.added[type].splice(addedIdx, 1);
-  } else if (!ov.removed.includes(word)) {
-    ov.removed.push(word);
-  }
+  const idx = cat[type].indexOf(word);
+  if (idx !== -1) cat[type].splice(idx, 1);
   save();
   renderCategories();
 }
@@ -37,19 +28,37 @@ function removeWord(cat, type, word) {
 function addWord(cat, type, rawWord) {
   const word = rawWord.trim();
   if (!word) return;
-  const ov = settings.overrides[cat];
-  const removedIdx = ov.removed.indexOf(word);
-  if (removedIdx !== -1) {
-    ov.removed.splice(removedIdx, 1);
-  } else if (!isDefaultWord(cat, type, word) && !ov.added[type].includes(word)) {
-    ov.added[type].push(word);
-  }
+  if (!cat[type].includes(word)) cat[type].push(word);
   save();
   renderCategories();
 }
 
-function resetCategory(cat) {
-  settings.overrides[cat] = HSF_emptyOverride();
+function removeCategory(cat) {
+  if (!confirm(`"${cat.label}" 카테고리를 삭제할까요?`)) return;
+  const idx = settings.categories.indexOf(cat);
+  if (idx !== -1) settings.categories.splice(idx, 1);
+  save();
+  renderCategories();
+}
+
+function addCategory(rawLabel) {
+  const label = rawLabel.trim();
+  if (!label) return;
+  settings.categories.push({
+    id: HSF_genId(),
+    label,
+    enabled: true,
+    groupTerms: [],
+    explicitSlurs: [],
+    ambiguousSlurs: []
+  });
+  save();
+  renderCategories();
+}
+
+function resetAllCategories() {
+  if (!confirm("모든 카테고리를 기본값(지역/성별/인종·국적/장애)으로 초기화할까요? 직접 추가·수정한 내용은 사라집니다.")) return;
+  settings.categories = HSF_buildDefaultCategories();
   save();
   renderCategories();
 }
@@ -112,27 +121,55 @@ function renderWordType(cat, type, title, cls, words) {
 
 function renderCategories() {
   categoryList.innerHTML = "";
-  for (const [cat, data] of Object.entries(HSF_DEFAULT_WORDLISTS)) {
-    const merged = HSF_getMergedLists(cat, settings.overrides);
 
+  if (!settings.categories.length) {
+    const li = document.createElement("li");
+    li.className = "empty-state";
+    li.textContent = "카테고리가 없습니다. 아래에서 새 카테고리를 추가해보세요.";
+    categoryList.appendChild(li);
+    return;
+  }
+
+  settings.categories.forEach((cat) => {
     const li = document.createElement("li");
 
     const header = document.createElement("div");
     header.className = "cat-header";
 
-    const label = document.createElement("span");
-    label.textContent = data.label;
-
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = !!settings.categories[cat];
-    input.addEventListener("change", () => {
-      settings.categories[cat] = input.checked;
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "cat-label-input";
+    labelInput.value = cat.label;
+    labelInput.addEventListener("change", () => {
+      cat.label = labelInput.value.trim() || cat.label;
+      labelInput.value = cat.label;
       save();
     });
 
-    header.appendChild(label);
-    header.appendChild(input);
+    const controls = document.createElement("div");
+    controls.className = "cat-controls";
+
+    const enabledInput = document.createElement("input");
+    enabledInput.type = "checkbox";
+    enabledInput.checked = !!cat.enabled;
+    enabledInput.title = "이 카테고리 사용";
+    enabledInput.addEventListener("change", () => {
+      cat.enabled = enabledInput.checked;
+      save();
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "cat-delete";
+    deleteBtn.textContent = "🗑";
+    deleteBtn.title = "카테고리 삭제";
+    deleteBtn.addEventListener("click", () => removeCategory(cat));
+
+    controls.appendChild(enabledInput);
+    controls.appendChild(deleteBtn);
+
+    header.appendChild(labelInput);
+    header.appendChild(controls);
 
     const details = document.createElement("details");
     details.className = "cat-words";
@@ -142,58 +179,25 @@ function renderCategories() {
     details.appendChild(summary);
 
     WORD_TYPES.forEach((t) => {
-      details.appendChild(renderWordType(cat, t.key, t.title, t.cls, merged[t.key]));
+      details.appendChild(renderWordType(cat, t.key, t.title, t.cls, cat[t.key]));
     });
-
-    const resetBtn = document.createElement("button");
-    resetBtn.type = "button";
-    resetBtn.className = "reset-btn";
-    resetBtn.textContent = "이 카테고리 기본값으로 초기화";
-    resetBtn.addEventListener("click", () => resetCategory(cat));
-    details.appendChild(resetBtn);
 
     li.appendChild(header);
     li.appendChild(details);
     categoryList.appendChild(li);
-  }
-}
-
-function renderCustomWords() {
-  customWordList.innerHTML = "";
-  settings.customWords.forEach((word, idx) => {
-    const li = document.createElement("li");
-
-    const label = document.createElement("span");
-    label.textContent = word;
-
-    const removeBtn = document.createElement("button");
-    removeBtn.textContent = "삭제";
-    removeBtn.addEventListener("click", () => {
-      settings.customWords.splice(idx, 1);
-      save();
-      renderCustomWords();
-    });
-
-    li.appendChild(label);
-    li.appendChild(removeBtn);
-    customWordList.appendChild(li);
   });
 }
 
-addWordBtn.addEventListener("click", () => {
-  const word = customWordInput.value.trim();
-  if (!word) return;
-  if (!settings.customWords.includes(word)) {
-    settings.customWords.push(word);
-    save();
-    renderCustomWords();
-  }
-  customWordInput.value = "";
+addCategoryBtn.addEventListener("click", () => {
+  addCategory(newCategoryInput.value);
+  newCategoryInput.value = "";
 });
 
-customWordInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") addWordBtn.click();
+newCategoryInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addCategoryBtn.click();
 });
+
+resetAllBtn.addEventListener("click", resetAllCategories);
 
 masterToggle.addEventListener("change", () => {
   settings.enabled = masterToggle.checked;
@@ -204,5 +208,4 @@ chrome.storage.sync.get(STORAGE_KEY, (data) => {
   settings = HSF_normalizeSettings(data[STORAGE_KEY]);
   masterToggle.checked = settings.enabled;
   renderCategories();
-  renderCustomWords();
 });

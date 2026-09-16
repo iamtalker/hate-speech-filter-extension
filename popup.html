@@ -20,17 +20,15 @@
   </p>
 
   <section>
-    <h2>카테고리</h2>
-    <ul id="categoryList" class="category-list"></ul>
-  </section>
-
-  <section>
-    <h2>사용자 지정 차단 단어</h2>
-    <div class="add-row">
-      <input type="text" id="customWordInput" placeholder="차단할 단어 입력" />
-      <button id="addWordBtn">추가</button>
+    <div class="section-header">
+      <h2>카테고리</h2>
+      <button id="resetAllBtn" class="reset-btn">기본 카테고리로 초기화</button>
     </div>
-    <ul id="customWordList" class="word-list"></ul>
+    <ul id="categoryList" class="category-list"></ul>
+    <div class="add-row">
+      <input type="text" id="newCategoryInput" placeholder="새 카테고리 이름 (예: 외모비하)" />
+      <button id="addCategoryBtn">추가</button>
+    </div>
   </section>
 
   <script src="wordlists.js"></script>

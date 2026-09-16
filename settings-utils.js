@@ -1,64 +1,107 @@
-// 설정(chrome.storage) 정규화 및 기본 단어 목록 + 사용자 수정 사항 병합 유틸리티.
-// content.js, popup.js, background.js에서 공통으로 사용한다.
+// 설정(chrome.storage) 정규화 유틸리티. content.js, popup.js, background.js에서 공통으로 사용한다.
+//
+// 저장 형식 (v1.2.0+):
+// {
+//   enabled: boolean,
+//   categories: [
+//     { id, label, enabled, groupTerms: [], explicitSlurs: [], ambiguousSlurs: [] },
+//     ...
+//   ]
+// }
+//
+// 카테고리는 더 이상 코드에 고정되어 있지 않고 전부 저장된 데이터다.
+// wordlists.js의 HSF_DEFAULT_WORDLISTS는 최초 설치 시 시드(seed) 데이터로만 쓰인다.
 
-const HSF_DEFAULT_SETTINGS = {
-  enabled: true,
-  categories: { region: true, gender: true, nationality: true, disability: false },
-  overrides: {},
-  customWords: []
-};
-
-function HSF_emptyOverride() {
-  return { added: { groupTerms: [], explicitSlurs: [], ambiguousSlurs: [] }, removed: [] };
+function HSF_genId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return "cat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 }
 
-// 저장된 설정에 새 카테고리/필드가 없어도 안전하게 기본값과 병합한다.
-function HSF_normalizeSettings(stored) {
-  stored = stored || {};
-  const categories = Object.assign({}, HSF_DEFAULT_SETTINGS.categories, stored.categories || {});
+function HSF_buildDefaultCategories() {
+  return Object.entries(HSF_DEFAULT_WORDLISTS).map(([id, data]) => ({
+    id,
+    label: data.label,
+    enabled: id !== "disability",
+    groupTerms: data.groupTerms.slice(),
+    explicitSlurs: data.explicitSlurs.slice(),
+    ambiguousSlurs: data.ambiguousSlurs.slice()
+  }));
+}
 
-  const overrides = {};
-  for (const cat of Object.keys(HSF_DEFAULT_WORDLISTS)) {
-    const empty = HSF_emptyOverride();
-    const src = (stored.overrides && stored.overrides[cat]) || {};
-    const srcAdded = src.added || {};
-    overrides[cat] = {
-      added: {
-        groupTerms: srcAdded.groupTerms || empty.added.groupTerms,
-        explicitSlurs: srcAdded.explicitSlurs || empty.added.explicitSlurs,
-        ambiguousSlurs: srcAdded.ambiguousSlurs || empty.added.ambiguousSlurs
-      },
-      removed: src.removed || empty.removed
-    };
-  }
-
+function HSF_sanitizeCategory(c) {
   return {
-    enabled: stored.enabled !== undefined ? stored.enabled : HSF_DEFAULT_SETTINGS.enabled,
-    categories,
-    overrides,
-    customWords: stored.customWords || []
+    id: (c && c.id) || HSF_genId(),
+    label: (c && c.label) || "(이름 없음)",
+    enabled: c && c.enabled !== undefined ? !!c.enabled : true,
+    groupTerms: Array.isArray(c && c.groupTerms) ? c.groupTerms : [],
+    explicitSlurs: Array.isArray(c && c.explicitSlurs) ? c.explicitSlurs : [],
+    ambiguousSlurs: Array.isArray(c && c.ambiguousSlurs) ? c.ambiguousSlurs : []
   };
 }
 
-function HSF_mergeList(defaultList, addedList, removedSet) {
-  const seen = new Set();
-  const merged = [];
-  for (const w of [...defaultList, ...(addedList || [])]) {
-    if (!w || removedSet.has(w) || seen.has(w)) continue;
-    seen.add(w);
-    merged.push(w);
+// v1.1.0 이하(고정 카테고리 + overrides + customWords)에서 저장된 데이터를
+// 새로운 자유 카테고리 배열 형식으로 변환한다.
+function HSF_migrateLegacySettings(stored) {
+  const legacyCategories = stored.categories || {};
+  const legacyOverrides = stored.overrides || {};
+  const categories = [];
+
+  for (const [id, data] of Object.entries(HSF_DEFAULT_WORDLISTS)) {
+    const ov = legacyOverrides[id] || { added: {}, removed: [] };
+    const added = ov.added || {};
+    const removed = new Set(ov.removed || []);
+
+    function merge(defaultList, addedList) {
+      const seen = new Set();
+      const out = [];
+      for (const w of [...defaultList, ...(addedList || [])]) {
+        if (!w || removed.has(w) || seen.has(w)) continue;
+        seen.add(w);
+        out.push(w);
+      }
+      return out;
+    }
+
+    categories.push({
+      id,
+      label: data.label,
+      enabled: legacyCategories[id] !== undefined ? !!legacyCategories[id] : true,
+      groupTerms: merge(data.groupTerms, added.groupTerms),
+      explicitSlurs: merge(data.explicitSlurs, added.explicitSlurs),
+      ambiguousSlurs: merge(data.ambiguousSlurs, added.ambiguousSlurs)
+    });
   }
-  return merged;
+
+  if (stored.customWords && stored.customWords.length) {
+    categories.push({
+      id: "custom",
+      label: "사용자 지정",
+      enabled: true,
+      groupTerms: [],
+      explicitSlurs: stored.customWords.slice(),
+      ambiguousSlurs: []
+    });
+  }
+
+  return {
+    enabled: stored.enabled !== undefined ? stored.enabled : true,
+    categories
+  };
 }
 
-// 카테고리별 기본 목록 + 사용자가 추가한 단어 - 사용자가 삭제한 기본 단어를 합쳐서 반환.
-function HSF_getMergedLists(cat, overrides) {
-  const data = HSF_DEFAULT_WORDLISTS[cat];
-  const ov = (overrides && overrides[cat]) || HSF_emptyOverride();
-  const removed = new Set(ov.removed || []);
+function HSF_normalizeSettings(stored) {
+  stored = stored || {};
+
+  if (!stored.categories) {
+    return { enabled: true, categories: HSF_buildDefaultCategories() };
+  }
+
+  if (!Array.isArray(stored.categories)) {
+    return HSF_migrateLegacySettings(stored);
+  }
+
   return {
-    groupTerms: HSF_mergeList(data.groupTerms, ov.added.groupTerms, removed),
-    explicitSlurs: HSF_mergeList(data.explicitSlurs, ov.added.explicitSlurs, removed),
-    ambiguousSlurs: HSF_mergeList(data.ambiguousSlurs, ov.added.ambiguousSlurs, removed)
+    enabled: stored.enabled !== undefined ? stored.enabled : true,
+    categories: stored.categories.map(HSF_sanitizeCategory)
   };
 }

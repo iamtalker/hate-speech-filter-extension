@@ -15,26 +15,13 @@
 
   function compileRules(settings) {
     const rules = [];
-    for (const cat of Object.keys(HSF_DEFAULT_WORDLISTS)) {
-      if (!settings.categories[cat]) continue;
-      const data = HSF_DEFAULT_WORDLISTS[cat];
-      const merged = HSF_getMergedLists(cat, settings.overrides);
-      rules.push({
-        cat,
-        label: data.label,
-        explicit: buildRegex(merged.explicitSlurs),
-        group: buildRegex(merged.groupTerms),
-        ambiguous: buildRegex(merged.ambiguousSlurs)
-      });
-    }
-    if (settings.customWords && settings.customWords.length) {
-      rules.push({
-        cat: "custom",
-        label: "사용자 지정",
-        explicit: buildRegex(settings.customWords),
-        group: null,
-        ambiguous: null
-      });
+    for (const cat of settings.categories) {
+      if (!cat.enabled) continue;
+      const explicit = buildRegex(cat.explicitSlurs);
+      const group = buildRegex(cat.groupTerms);
+      const ambiguous = buildRegex(cat.ambiguousSlurs);
+      if (!explicit && !(group && ambiguous)) continue;
+      rules.push({ label: cat.label, explicit, group, ambiguous });
     }
     return rules;
   }
