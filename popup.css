@@ -226,6 +226,12 @@ h2 {
   cursor: pointer;
 }
 
+.add-row button.secondary-btn {
+  flex: 1;
+  background: #f0f0f0;
+  color: #444;
+}
+
 .switch {
   position: relative;
   display: inline-block;

@@ -14,6 +14,9 @@ const resetAllBtn = document.getElementById("resetAllBtn");
 const deleteAllBtn = document.getElementById("deleteAllBtn");
 const newCategoryInput = document.getElementById("newCategoryInput");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const importFileInput = document.getElementById("importFileInput");
 
 function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
@@ -69,6 +72,47 @@ function deleteAllCategories() {
   settings.categories = [];
   save();
   renderCategories();
+}
+
+function exportCategories() {
+  const payload = {
+    hsfExportVersion: 1,
+    exportedAt: new Date().toISOString(),
+    categories: settings.categories
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "hate-speech-filter-words-" + new Date().toISOString().slice(0, 10) + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCategories(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(reader.result);
+    } catch (e) {
+      alert("파일을 읽을 수 없습니다. 올바른 JSON 파일인지 확인해주세요.");
+      return;
+    }
+
+    const rawCategories = Array.isArray(parsed) ? parsed : parsed.categories;
+    if (!Array.isArray(rawCategories)) {
+      alert("이 파일에는 카테고리 데이터가 없습니다.");
+      return;
+    }
+
+    if (!confirm(`카테고리 ${rawCategories.length}개를 가져올까요? 현재 카테고리는 전부 대체됩니다.`)) return;
+
+    settings.categories = rawCategories.map(HSF_sanitizeCategory);
+    save();
+    renderCategories();
+  };
+  reader.readAsText(file);
 }
 
 function renderWordType(cat, type, title, cls, words) {
@@ -207,6 +251,14 @@ newCategoryInput.addEventListener("keydown", (e) => {
 
 resetAllBtn.addEventListener("click", resetAllCategories);
 deleteAllBtn.addEventListener("click", deleteAllCategories);
+
+exportBtn.addEventListener("click", exportCategories);
+importBtn.addEventListener("click", () => importFileInput.click());
+importFileInput.addEventListener("change", () => {
+  const file = importFileInput.files[0];
+  if (file) importCategories(file);
+  importFileInput.value = "";
+});
 
 masterToggle.addEventListener("change", () => {
   settings.enabled = masterToggle.checked;
