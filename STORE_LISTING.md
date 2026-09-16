@@ -46,22 +46,18 @@ https://github.com/iamtalker/hate-speech-filter-extension/blob/main/PRIVACY.md
 | 용도 | 규격 | 상태 |
 |---|---|---|
 | 확장프로그램 아이콘 (매니페스트/스토어 아이콘 겸용) | 128×128 PNG, 실제 그림은 96×96 + 여백 16px | `icons/icon128.png` 완료 |
-| 스크린샷 (필수, 최소 1장, 최대 5장) | 1280×800 또는 640×400 | 직접 촬영 필요 |
-| 작은 프로모션 타일 | 440×280 PNG | `store-assets/promo-tile-440x280.png` 완료 |
-| 마퀴 타일 (선택) | 1400×560 PNG | 생략 가능 |
-
-### 스크린샷 촬영 방법 (직접 촬영 필요)
-
-1. `chrome://extensions`에서 확장프로그램 로드 후 아무 사이트에서 테스트 문구가 블러 처리된 화면 캡처
-2. 팝업 열어서 카테고리 관리 화면 캡처
+| 스크린샷 (필수, 최소 1장, 최대 5장) | 1280×800 또는 640×400, 24비트 PNG/JPEG(알파 없음) | `store-assets/screenshot-1-feed.png` 완료 (목업, 원하면 실제 설치 화면으로 교체 가능) |
+| 작은 프로모션 타일 | 440×280 PNG(알파 없음) | `store-assets/promo-tile-440x280.png` 완료 |
+| 마퀴 타일 (선택) | 1400×560 PNG(알파 없음) | `store-assets/marquee-tile-1400x560.png` 완료 (없어도 등록 가능, Featured 노출 시에만 사용) |
 
 ## 제출 전 체크리스트
 
 - [ ] `chrome.google.com/webstore/devconsole`에서 개발자 계정 등록 (5달러 일회성 결제)
 - [ ] `package.ps1` 실행해서 zip 생성
 - [x] 아이콘 (128×128)
+- [x] 스크린샷 1장 이상
 - [x] 프로모션 타일 (440×280)
-- [ ] 스크린샷 1장 이상 촬영
+- [x] 마퀴 타일 (1400×560, 선택)
 - [ ] 짧은 설명 / 상세 설명 입력
 - [ ] 개인정보처리방침 URL 입력
 - [ ] 카테고리: Communication
