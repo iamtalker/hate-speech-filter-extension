@@ -39,7 +39,8 @@ content.js          페이지 스캔 및 블러 처리 로직
 background.js       설치 시 기본 설정 초기화
 popup.html/js/css   팝업 설정 UI (카테고리 생성/삭제/단어 편집)
 styles.css          블러/배지 스타일
-icons/              툴바/스토어용 아이콘 (16/48/128px)
+icons/              툴바/스토어용 아이콘 (16/48/128px, 확장프로그램 패키지에 포함됨)
+store-assets/        스토어 등록 전용 이미지 (프로모션 타일 등, 패키지에는 미포함)
 package.ps1          Chrome 웹 스토어 업로드용 zip 생성 스크립트 (dist/에 생성)
 PRIVACY.md           개인정보처리방침 (스토어 등록용)
 STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
@@ -62,6 +63,11 @@ STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
 ## 변경 이력
 
 버전별 상세 내용은 [Releases](https://github.com/iamtalker/hate-speech-filter-extension/releases)에서도 확인할 수 있습니다.
+
+### v1.3.2
+- 아이콘을 스토어 가이드라인에 맞게 재작업 (96×96 그림 + 16px 투명 여백)
+- 스토어용 작은 프로모션 타일(440×280) 추가 (`store-assets/`)
+- `STORE_LISTING.md`에 필요한 이미지 규격/체크리스트 보강
 
 ### v1.3.1
 - 아이콘 추가(16/48/128px), 툴바 아이콘 및 스토어용 아이콘으로 연결
