@@ -42,6 +42,13 @@ h2 {
   margin: 12px 0 6px;
 }
 
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
 .category-list {
   list-style: none;
   margin: 0;
@@ -189,6 +196,10 @@ h2 {
   cursor: pointer;
   text-decoration: underline;
   white-space: nowrap;
+}
+
+.reset-btn-danger {
+  color: #c0392b;
 }
 
 .add-row {

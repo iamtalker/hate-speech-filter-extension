@@ -11,6 +11,7 @@ let settings = { enabled: true, categories: [] };
 const masterToggle = document.getElementById("masterToggle");
 const categoryList = document.getElementById("categoryList");
 const resetAllBtn = document.getElementById("resetAllBtn");
+const deleteAllBtn = document.getElementById("deleteAllBtn");
 const newCategoryInput = document.getElementById("newCategoryInput");
 const addCategoryBtn = document.getElementById("addCategoryBtn");
 
@@ -59,6 +60,13 @@ function addCategory(rawLabel) {
 function resetAllCategories() {
   if (!confirm("모든 카테고리를 기본값(지역/성별/인종·국적/장애)으로 초기화할까요? 직접 추가·수정한 내용은 사라집니다.")) return;
   settings.categories = HSF_buildDefaultCategories();
+  save();
+  renderCategories();
+}
+
+function deleteAllCategories() {
+  if (!confirm("카테고리를 전부 삭제할까요? 이 작업은 되돌릴 수 없습니다. (필요하면 나중에 '기본 카테고리로 초기화'로 다시 만들 수 있어요)")) return;
+  settings.categories = [];
   save();
   renderCategories();
 }
@@ -198,6 +206,7 @@ newCategoryInput.addEventListener("keydown", (e) => {
 });
 
 resetAllBtn.addEventListener("click", resetAllCategories);
+deleteAllBtn.addEventListener("click", deleteAllCategories);
 
 masterToggle.addEventListener("change", () => {
   settings.enabled = masterToggle.checked;
