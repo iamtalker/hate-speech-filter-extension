@@ -39,7 +39,20 @@ content.js          페이지 스캔 및 블러 처리 로직
 background.js       설치 시 기본 설정 초기화
 popup.html/js/css   팝업 설정 UI (카테고리 생성/삭제/단어 편집)
 styles.css          블러/배지 스타일
+icons/              툴바/스토어용 아이콘 (16/48/128px)
+package.ps1          Chrome 웹 스토어 업로드용 zip 생성 스크립트 (dist/에 생성)
+PRIVACY.md           개인정보처리방침 (스토어 등록용)
+STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
 ```
+
+## Chrome 웹 스토어 등록
+
+1. `powershell -File package.ps1` 실행 → `dist/`에 업로드용 zip 생성
+2. [Chrome 웹 스토어 개발자 콘솔](https://chrome.google.com/webstore/devconsole)에서 계정 등록 (최초 1회 5달러)
+3. zip 업로드, `STORE_LISTING.md`의 설명문/개인정보처리방침 URL 입력, 스크린샷 첨부
+4. 심사 제출
+
+자세한 체크리스트는 [STORE_LISTING.md](STORE_LISTING.md) 참고.
 
 ## 알려진 한계
 
@@ -49,6 +62,10 @@ styles.css          블러/배지 스타일
 ## 변경 이력
 
 버전별 상세 내용은 [Releases](https://github.com/iamtalker/hate-speech-filter-extension/releases)에서도 확인할 수 있습니다.
+
+### v1.3.1
+- 아이콘 추가(16/48/128px), 툴바 아이콘 및 스토어용 아이콘으로 연결
+- Chrome 웹 스토어 등록 준비: 개인정보처리방침(`PRIVACY.md`), 등록용 설명문(`STORE_LISTING.md`), 업로드용 zip 패키징 스크립트(`package.ps1`) 추가
 
 ### v1.3.0
 - 카테고리 섹션에 "전체 삭제" 버튼 추가 (모든 카테고리를 한 번에 비움, 확인 절차 포함)
