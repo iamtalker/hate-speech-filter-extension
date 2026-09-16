@@ -49,6 +49,9 @@ styles.css          블러/배지 스타일
 
 버전별 상세 내용은 [Releases](https://github.com/iamtalker/hate-speech-filter-extension/releases)에서도 확인할 수 있습니다.
 
+### v1.2.1
+- 팝업 카테고리 단어 목록 표시 순서 변경: "명백한 멸칭"을 맨 위로 이동
+
 ### v1.2.0
 - 카테고리를 고정 목록에서 자유 생성/삭제/이름 변경 가능한 구조로 변경
 - 팝업에서 "새 카테고리 추가", 카테고리별 삭제, 라벨 인라인 수정 지원

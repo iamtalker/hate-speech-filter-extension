@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "혐오표현 필터",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "지역/성별/인종 등에 대한 혐오·비하 표현이 포함된 글을 감지해 블러 처리합니다. 중립적인 지역명·집단명 자체는 차단하지 않습니다.",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],

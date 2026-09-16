@@ -1,8 +1,8 @@
 const STORAGE_KEY = "hsfSettings";
 
 const WORD_TYPES = [
-  { key: "groupTerms", title: "집단 식별어 (단독으로는 차단 안 함)", cls: "wg-group" },
   { key: "explicitSlurs", title: "명백한 멸칭 (즉시 차단)", cls: "wg-explicit" },
+  { key: "groupTerms", title: "집단 식별어 (단독으로는 차단 안 함)", cls: "wg-group" },
   { key: "ambiguousSlurs", title: "모호한 표현 (집단어와 같이 나올 때만 차단)", cls: "wg-ambiguous" }
 ];
 
