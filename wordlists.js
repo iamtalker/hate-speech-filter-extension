@@ -10,26 +10,38 @@
 const HSF_DEFAULT_WORDLISTS = {
   region: {
     label: "지역차별",
-    groupTerms: ["전라도", "전라도민", "전라남도", "전라북도", "호남", "호남인", "광주시민"],
+    groupTerms: [
+      "전라도", "전라도민", "전라남도", "전라북도", "호남", "호남인", "광주시민",
+      "경상도", "경상도민", "경상남도", "경상북도", "영남", "영남인"
+    ],
     explicitSlurs: ["전라디언", "전라디안"],
-    ambiguousSlurs: ["홍어"]
+    ambiguousSlurs: ["홍어", "과메기"]
   },
   gender: {
     label: "성차별",
-    groupTerms: ["여성", "여자", "남성", "남자"],
-    explicitSlurs: ["김치녀", "한남충", "보슬아치", "된장녀", "맘충", "꼴페미", "재기해"],
+    groupTerms: ["여성", "여자", "남성", "남자", "페미", "페미니스트"],
+    explicitSlurs: [
+      "김치녀", "한남충", "보슬아치", "된장녀", "맘충", "꼴페미", "재기해",
+      "김여사", "메갈년"
+    ],
     ambiguousSlurs: []
   },
   nationality: {
     label: "인종·국적차별",
-    groupTerms: ["중국인", "일본인", "조선족", "흑인", "동남아", "베트남인", "외국인노동자", "이주민"],
-    explicitSlurs: ["짱깨", "쪽바리", "떼놈", "짱꼴라", "코쟁이", "깜둥이"],
-    ambiguousSlurs: []
+    groupTerms: [
+      "중국인", "일본인", "조선족", "흑인", "동남아", "베트남인", "필리핀인",
+      "외국인노동자", "이주민", "무슬림", "난민", "북한", "북한이탈주민", "탈북자"
+    ],
+    explicitSlurs: [
+      "짱깨", "쪽바리", "쪽발이", "떼놈", "짱꼴라", "코쟁이", "깜둥이", "왜놈",
+      "난민충", "무슬림충"
+    ],
+    ambiguousSlurs: ["짜장", "빨갱이"]
   },
   disability: {
     label: "장애 비하",
     groupTerms: ["장애인", "장애우"],
-    explicitSlurs: ["장애자"],
-    ambiguousSlurs: []
+    explicitSlurs: ["장애자", "애자"],
+    ambiguousSlurs: ["병신"]
   }
 };
