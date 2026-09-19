@@ -6,7 +6,7 @@ const WORD_TYPES = [
   { key: "ambiguousSlurs", title: "모호한 표현 (집단어와 같이 나올 때만 차단)", cls: "wg-ambiguous" }
 ];
 
-let settings = { enabled: true, categories: [] };
+let settings = { enabled: true, categories: [], excludedSites: [] };
 
 const masterToggle = document.getElementById("masterToggle");
 const categoryList = document.getElementById("categoryList");
@@ -17,6 +17,10 @@ const addCategoryBtn = document.getElementById("addCategoryBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const importFileInput = document.getElementById("importFileInput");
+const excludedSiteList = document.getElementById("excludedSiteList");
+const newExcludedSiteInput = document.getElementById("newExcludedSiteInput");
+const addExcludedSiteBtn = document.getElementById("addExcludedSiteBtn");
+const addCurrentSiteBtn = document.getElementById("addCurrentSiteBtn");
 
 function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
@@ -275,8 +279,90 @@ masterToggle.addEventListener("change", () => {
   save();
 });
 
+function normalizeSiteInput(raw) {
+  let s = (raw || "").trim();
+  if (!s) return "";
+  try {
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) {
+      s = new URL(s).hostname;
+    } else if (s.includes("/")) {
+      s = s.split("/")[0];
+    }
+  } catch (e) {
+    return "";
+  }
+  return s.toLowerCase().replace(/^www\./, "");
+}
+
+function updateExcludedEmptyState() {
+  const empty = excludedSiteList.querySelector(".tag-empty");
+  if (settings.excludedSites.length === 0 && !empty) {
+    const span = document.createElement("span");
+    span.className = "tag-empty";
+    span.textContent = "(없음)";
+    excludedSiteList.appendChild(span);
+  } else if (settings.excludedSites.length > 0 && empty) {
+    empty.remove();
+  }
+}
+
+function addExcludedSiteTag(site) {
+  const tag = document.createElement("span");
+  tag.className = "tag";
+  tag.textContent = site;
+
+  const x = document.createElement("button");
+  x.type = "button";
+  x.className = "tag-remove";
+  x.textContent = "×";
+  x.title = "삭제";
+  x.addEventListener("click", () => {
+    const idx = settings.excludedSites.indexOf(site);
+    if (idx !== -1) settings.excludedSites.splice(idx, 1);
+    save();
+    tag.remove();
+    updateExcludedEmptyState();
+  });
+
+  tag.appendChild(x);
+  excludedSiteList.appendChild(tag);
+}
+
+function renderExcludedSites() {
+  excludedSiteList.innerHTML = "";
+  settings.excludedSites.forEach(addExcludedSiteTag);
+  updateExcludedEmptyState();
+}
+
+function addExcludedSite(rawSite) {
+  const site = normalizeSiteInput(rawSite);
+  if (!site || settings.excludedSites.includes(site)) return;
+  settings.excludedSites.push(site);
+  save();
+  addExcludedSiteTag(site);
+  updateExcludedEmptyState();
+}
+
+addExcludedSiteBtn.addEventListener("click", () => {
+  addExcludedSite(newExcludedSiteInput.value);
+  newExcludedSiteInput.value = "";
+  newExcludedSiteInput.focus();
+});
+
+newExcludedSiteInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addExcludedSiteBtn.click();
+});
+
+addCurrentSiteBtn.addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const url = tabs && tabs[0] && tabs[0].url;
+    if (url) addExcludedSite(url);
+  });
+});
+
 chrome.storage.sync.get(STORAGE_KEY, (data) => {
   settings = HSF_normalizeSettings(data[STORAGE_KEY]);
   masterToggle.checked = settings.enabled;
   renderCategories();
+  renderExcludedSites();
 });

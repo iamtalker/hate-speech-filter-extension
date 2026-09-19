@@ -39,6 +39,17 @@
     </div>
   </section>
 
+  <section>
+    <h2>제외 사이트</h2>
+    <p class="note">여기 등록한 사이트(및 서브도메인)에서는 확장 프로그램이 아예 동작하지 않습니다.</p>
+    <div id="excludedSiteList" class="tag-list excluded-site-list"></div>
+    <div class="add-row">
+      <input type="text" id="newExcludedSiteInput" placeholder="예: example.com" />
+      <button id="addExcludedSiteBtn">추가</button>
+    </div>
+    <button id="addCurrentSiteBtn" class="secondary-btn full-width-btn">현재 보고 있는 사이트 추가</button>
+  </section>
+
   <script src="wordlists.js"></script>
   <script src="settings-utils.js"></script>
   <script src="popup.js"></script>

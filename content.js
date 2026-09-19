@@ -103,6 +103,7 @@
 
   chrome.storage.sync.get(STORAGE_KEY, (data) => {
     const settings = HSF_normalizeSettings(data[STORAGE_KEY]);
+    if (HSF_isHostExcluded(location.hostname, settings.excludedSites)) return;
     start(settings);
   });
 })();

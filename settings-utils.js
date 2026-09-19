@@ -1,12 +1,13 @@
 // 설정(chrome.storage) 정규화 유틸리티. content.js, popup.js, background.js에서 공통으로 사용한다.
 //
-// 저장 형식 (v1.2.0+):
+// 저장 형식 (v1.5.0+):
 // {
 //   enabled: boolean,
 //   categories: [
 //     { id, label, enabled, groupTerms: [], explicitSlurs: [], ambiguousSlurs: [] },
 //     ...
-//   ]
+//   ],
+//   excludedSites: ["example.com", ...]  // 이 사이트(및 서브도메인)에서는 아예 동작하지 않음
 // }
 //
 // 카테고리는 더 이상 코드에 고정되어 있지 않고 전부 저장된 데이터다.
@@ -89,19 +90,46 @@ function HSF_migrateLegacySettings(stored) {
   };
 }
 
+function HSF_sanitizeExcludedSites(list) {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const raw of list) {
+    const site = String(raw || "").trim().toLowerCase();
+    if (!site || seen.has(site)) continue;
+    seen.add(site);
+    out.push(site);
+  }
+  return out;
+}
+
 function HSF_normalizeSettings(stored) {
   stored = stored || {};
 
   if (!stored.categories) {
-    return { enabled: true, categories: HSF_buildDefaultCategories() };
+    return {
+      enabled: true,
+      categories: HSF_buildDefaultCategories(),
+      excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites)
+    };
   }
 
   if (!Array.isArray(stored.categories)) {
-    return HSF_migrateLegacySettings(stored);
+    const migrated = HSF_migrateLegacySettings(stored);
+    migrated.excludedSites = HSF_sanitizeExcludedSites(stored.excludedSites);
+    return migrated;
   }
 
   return {
     enabled: stored.enabled !== undefined ? stored.enabled : true,
-    categories: stored.categories.map(HSF_sanitizeCategory)
+    categories: stored.categories.map(HSF_sanitizeCategory),
+    excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites)
   };
+}
+
+// hostname이 제외 목록에 걸리는지 확인한다. 등록한 도메인과 그 서브도메인을 모두 포함한다.
+function HSF_isHostExcluded(hostname, excludedSites) {
+  if (!hostname || !excludedSites || !excludedSites.length) return false;
+  const h = hostname.toLowerCase();
+  return excludedSites.some((site) => h === site || h.endsWith("." + site));
 }
