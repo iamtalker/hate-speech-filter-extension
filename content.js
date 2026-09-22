@@ -1,7 +1,7 @@
 (function () {
   const STORAGE_KEY = "hsfSettings";
 
-  const BLOCK_SELECTOR = "p, li, div, span, td, th, blockquote, h1, h2, h3, h4, h5, h6, article, dd, dt";
+  const BLOCK_SELECTOR = "p, li, div, span, a, td, th, blockquote, h1, h2, h3, h4, h5, h6, article, dd, dt";
 
   function escapeRegex(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -63,6 +63,7 @@
     badge.dataset.hsfProcessed = "1";
     badge.textContent = "🙈 혐오표현 감지(" + rule.label + ") · 클릭하여 보기";
     badge.addEventListener("click", function (ev) {
+      ev.preventDefault();
       ev.stopPropagation();
       const hidden = inner.classList.toggle(hiddenClass);
       badge.classList.toggle("hsf-badge-active", !hidden);
