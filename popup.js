@@ -6,9 +6,11 @@ const WORD_TYPES = [
   { key: "ambiguousSlurs", title: "모호한 표현 (집단어와 같이 나올 때만 차단)", cls: "wg-ambiguous" }
 ];
 
-let settings = { enabled: true, categories: [], excludedSites: [] };
+let settings = { enabled: true, categories: [], excludedSites: [], displayMode: "blur" };
 
 const masterToggle = document.getElementById("masterToggle");
+const displayModeBlur = document.getElementById("displayModeBlur");
+const displayModeHide = document.getElementById("displayModeHide");
 const categoryList = document.getElementById("categoryList");
 const resetAllBtn = document.getElementById("resetAllBtn");
 const deleteAllBtn = document.getElementById("deleteAllBtn");
@@ -279,6 +281,20 @@ masterToggle.addEventListener("change", () => {
   save();
 });
 
+displayModeBlur.addEventListener("change", () => {
+  if (displayModeBlur.checked) {
+    settings.displayMode = "blur";
+    save();
+  }
+});
+
+displayModeHide.addEventListener("change", () => {
+  if (displayModeHide.checked) {
+    settings.displayMode = "hide";
+    save();
+  }
+});
+
 function normalizeSiteInput(raw) {
   let s = (raw || "").trim();
   if (!s) return "";
@@ -363,6 +379,8 @@ addCurrentSiteBtn.addEventListener("click", () => {
 chrome.storage.sync.get(STORAGE_KEY, (data) => {
   settings = HSF_normalizeSettings(data[STORAGE_KEY]);
   masterToggle.checked = settings.enabled;
+  displayModeBlur.checked = settings.displayMode === "blur";
+  displayModeHide.checked = settings.displayMode === "hide";
   renderCategories();
   renderExcludedSites();
 });

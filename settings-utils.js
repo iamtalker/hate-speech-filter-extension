@@ -1,13 +1,14 @@
 // 설정(chrome.storage) 정규화 유틸리티. content.js, popup.js, background.js에서 공통으로 사용한다.
 //
-// 저장 형식 (v1.5.0+):
+// 저장 형식 (v1.6.0+):
 // {
 //   enabled: boolean,
 //   categories: [
 //     { id, label, enabled, groupTerms: [], explicitSlurs: [], ambiguousSlurs: [] },
 //     ...
 //   ],
-//   excludedSites: ["example.com", ...]  // 이 사이트(및 서브도메인)에서는 아예 동작하지 않음
+//   excludedSites: ["example.com", ...],  // 이 사이트(및 서브도메인)에서는 아예 동작하지 않음
+//   displayMode: "blur" | "hide"  // 감지된 글을 블러 처리할지, 완전히 숨길지
 // }
 //
 // 카테고리는 더 이상 코드에 고정되어 있지 않고 전부 저장된 데이터다.
@@ -103,6 +104,10 @@ function HSF_sanitizeExcludedSites(list) {
   return out;
 }
 
+function HSF_sanitizeDisplayMode(mode) {
+  return mode === "hide" ? "hide" : "blur";
+}
+
 function HSF_normalizeSettings(stored) {
   stored = stored || {};
 
@@ -110,20 +115,23 @@ function HSF_normalizeSettings(stored) {
     return {
       enabled: true,
       categories: HSF_buildDefaultCategories(),
-      excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites)
+      excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites),
+      displayMode: HSF_sanitizeDisplayMode(stored.displayMode)
     };
   }
 
   if (!Array.isArray(stored.categories)) {
     const migrated = HSF_migrateLegacySettings(stored);
     migrated.excludedSites = HSF_sanitizeExcludedSites(stored.excludedSites);
+    migrated.displayMode = HSF_sanitizeDisplayMode(stored.displayMode);
     return migrated;
   }
 
   return {
     enabled: stored.enabled !== undefined ? stored.enabled : true,
     categories: stored.categories.map(HSF_sanitizeCategory),
-    excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites)
+    excludedSites: HSF_sanitizeExcludedSites(stored.excludedSites),
+    displayMode: HSF_sanitizeDisplayMode(stored.displayMode)
   };
 }
 

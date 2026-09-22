@@ -42,11 +42,12 @@
     return !!el.closest("script, style, textarea, input, [contenteditable], .hsf-badge, .hsf-inner");
   }
 
-  function applyBlur(el, rule) {
+  function applyBlur(el, rule, mode) {
     if (el.dataset.hsfBlurred) return;
+    const hiddenClass = mode === "hide" ? "hsf-hidden-full" : "hsf-hidden-content";
 
     const inner = document.createElement("span");
-    inner.className = "hsf-inner hsf-hidden-content";
+    inner.className = "hsf-inner " + hiddenClass;
     inner.dataset.hsfProcessed = "1";
     while (el.firstChild) inner.appendChild(el.firstChild);
 
@@ -56,7 +57,7 @@
     badge.textContent = "🙈 혐오표현 감지(" + rule.label + ") · 클릭하여 보기";
     badge.addEventListener("click", function (ev) {
       ev.stopPropagation();
-      const hidden = inner.classList.toggle("hsf-hidden-content");
+      const hidden = inner.classList.toggle(hiddenClass);
       badge.classList.toggle("hsf-badge-active", !hidden);
     });
 
@@ -65,7 +66,7 @@
     el.dataset.hsfBlurred = "1";
   }
 
-  function scan(root, rules) {
+  function scan(root, rules, mode) {
     if (!root || !root.querySelectorAll) return;
     const candidates = root.matches && root.matches(BLOCK_SELECTOR) ? [root] : [];
     candidates.push(...root.querySelectorAll(BLOCK_SELECTOR));
@@ -80,7 +81,7 @@
       if (text.length < 2 || text.length > 4000) continue;
 
       const rule = testMatch(text, rules);
-      if (rule) applyBlur(el, rule);
+      if (rule) applyBlur(el, rule, mode);
     }
   }
 
@@ -88,13 +89,14 @@
     if (!settings.enabled) return;
     const rules = compileRules(settings);
     if (!rules.length) return;
+    const mode = settings.displayMode;
 
-    scan(document.body, rules);
+    scan(document.body, rules, mode);
 
     const observer = new MutationObserver((mutations) => {
       for (const mut of mutations) {
         for (const node of mut.addedNodes) {
-          if (node.nodeType === 1) scan(node, rules);
+          if (node.nodeType === 1) scan(node, rules, mode);
         }
       }
     });

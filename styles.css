@@ -27,3 +27,7 @@
   filter: none;
   transition: filter 0.15s ease;
 }
+
+.hsf-inner.hsf-hidden-full {
+  display: none;
+}
