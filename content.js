@@ -34,8 +34,20 @@
     return null;
   }
 
+  // 자기 자신에게 직접 딸린(자식 요소가 아닌) 텍스트 노드가 있는지 확인한다.
+  function hasOwnText(el) {
+    for (const node of el.childNodes) {
+      if (node.nodeType === 3 && node.nodeValue.trim().length > 0) return true;
+    }
+    return false;
+  }
+
+  // 검사 대상으로 삼을 "리프 블록"인지 판단한다.
+  // 내부에 다른 블록 요소(span, a 등)가 있어도, 그것과 별개로 자기 자신 소유의
+  // 텍스트가 있다면(예: <a class="title"><span>[짤방]</span>제목 텍스트</a>의
+  // "제목 텍스트" 부분) 통째로 검사해야 그 텍스트가 누락되지 않는다.
   function isLeafBlock(el) {
-    return !el.querySelector(BLOCK_SELECTOR);
+    return !el.querySelector(BLOCK_SELECTOR) || hasOwnText(el);
   }
 
   function isInIgnoredContext(el) {
