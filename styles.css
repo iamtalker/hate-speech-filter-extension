@@ -31,3 +31,7 @@
 .hsf-inner.hsf-hidden-full {
   display: none;
 }
+
+.hsf-removed {
+  display: none !important;
+}

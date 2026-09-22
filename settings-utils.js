@@ -8,7 +8,7 @@
 //     ...
 //   ],
 //   excludedSites: ["example.com", ...],  // 이 사이트(및 서브도메인)에서는 아예 동작하지 않음
-//   displayMode: "blur" | "hide"  // 감지된 글을 블러 처리할지, 완전히 숨길지
+//   displayMode: "blur" | "hide" | "remove"  // 감지된 글을 블러 처리 / 완전히 숨김(배지로 복구 가능) / 완전 삭제(배지도 없음, 복구 불가)
 // }
 //
 // 카테고리는 더 이상 코드에 고정되어 있지 않고 전부 저장된 데이터다.
@@ -105,7 +105,7 @@ function HSF_sanitizeExcludedSites(list) {
 }
 
 function HSF_sanitizeDisplayMode(mode) {
-  return mode === "hide" ? "hide" : "blur";
+  return mode === "hide" || mode === "remove" ? mode : "blur";
 }
 
 function HSF_normalizeSettings(stored) {

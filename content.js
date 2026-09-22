@@ -44,6 +44,13 @@
 
   function applyBlur(el, rule, mode) {
     if (el.dataset.hsfBlurred) return;
+
+    if (mode === "remove") {
+      el.classList.add("hsf-removed");
+      el.dataset.hsfBlurred = "1";
+      return;
+    }
+
     const hiddenClass = mode === "hide" ? "hsf-hidden-full" : "hsf-hidden-content";
 
     const inner = document.createElement("span");

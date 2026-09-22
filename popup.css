@@ -50,6 +50,10 @@ h2 {
   font-weight: 600;
 }
 
+.radio-row-danger strong {
+  color: #c0392b;
+}
+
 .section-header {
   display: flex;
   align-items: baseline;

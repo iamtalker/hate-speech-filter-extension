@@ -11,6 +11,7 @@ let settings = { enabled: true, categories: [], excludedSites: [], displayMode: 
 const masterToggle = document.getElementById("masterToggle");
 const displayModeBlur = document.getElementById("displayModeBlur");
 const displayModeHide = document.getElementById("displayModeHide");
+const displayModeRemove = document.getElementById("displayModeRemove");
 const categoryList = document.getElementById("categoryList");
 const resetAllBtn = document.getElementById("resetAllBtn");
 const deleteAllBtn = document.getElementById("deleteAllBtn");
@@ -295,6 +296,13 @@ displayModeHide.addEventListener("change", () => {
   }
 });
 
+displayModeRemove.addEventListener("change", () => {
+  if (displayModeRemove.checked) {
+    settings.displayMode = "remove";
+    save();
+  }
+});
+
 function normalizeSiteInput(raw) {
   let s = (raw || "").trim();
   if (!s) return "";
@@ -381,6 +389,7 @@ chrome.storage.sync.get(STORAGE_KEY, (data) => {
   masterToggle.checked = settings.enabled;
   displayModeBlur.checked = settings.displayMode === "blur";
   displayModeHide.checked = settings.displayMode === "hide";
+  displayModeRemove.checked = settings.displayMode === "remove";
   renderCategories();
   renderExcludedSites();
 });
