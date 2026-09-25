@@ -40,7 +40,7 @@
 
 ### 파이어폭스 (실험적)
 
-파이어폭스 121 이상에서 임시 설치로 동작합니다. 크롬용과 매니페스트가 달라서 별도의 [`firefox/`](firefox/) 폴더를 둡니다. 주소창에 `about:debugging` → "이 Firefox" → "임시 부가 기능 로드" → **`firefox/manifest.json`** 선택. (`firefox/`는 `package.ps1`이 만드는 생성물이라 직접 고치지 마세요.) 브라우저를 껐다 켜면 사라집니다. 일반 파이어폭스는 서명되지 않은 확장을 파일로 설치할 수 없어서 zip을 직접 넣으면 "파일이 손상된 것 같다"는 식의 오류가 납니다. 계속 쓰려면 addons.mozilla.org에서 "미등록(unlisted)"으로 제출해 서명받은 파일을 설치하세요. 모든 사이트에서 동작하려면 `about:addons`의 확장 권한 탭에서 사이트 접근을 허용해야 할 수 있습니다.
+파이어폭스 121 이상에서 임시 설치로 동작합니다. 크롬용과 매니페스트가 달라서 파이어폭스용 폴더는 `package.ps1`이 따로 만듭니다(저장소에는 커밋하지 않는 생성물이라 직접 고치지 마세요). `powershell -File package.ps1`을 실행하면 `dist/firefox/`에 생기고, `-FirefoxOut "C:\원하는\폴더"`를 붙이면 저장소 밖 원하는 위치에 만듭니다(폴더가 비어 있거나 이 확장의 이전 결과물일 때만 덮어씁니다). 그 다음 주소창에 `about:debugging` → "이 Firefox" → "임시 부가 기능 로드" → 만들어진 폴더의 **`manifest.json`** 선택. 브라우저를 껐다 켜면 사라집니다. 일반 파이어폭스는 서명되지 않은 확장을 파일로 설치할 수 없어서 zip을 직접 넣으면 "파일이 손상된 것 같다"는 식의 오류가 납니다. 계속 쓰려면 addons.mozilla.org에서 "미등록(unlisted)"으로 제출해 서명받은 파일을 설치하세요. 모든 사이트에서 동작하려면 `about:addons`의 확장 권한 탭에서 사이트 접근을 허용해야 할 수 있습니다.
 
 ## 기능
 
@@ -77,7 +77,6 @@ styles.css          블러/배지 스타일
 icons/              툴바/스토어용 아이콘 (16/48/128px, 확장프로그램 패키지에 포함됨)
 store-assets/        스토어 등록 전용 이미지 (프로모션 타일 등, 패키지에는 미포함)
 wordpacks/            선택 설치용 확장 단어 팩 (패키지에 포함, 팝업의 "확장 단어 팩 설치" 버튼으로 병합)
-firefox/              파이어폭스용 빌드 폴더 (package.ps1이 생성, background 설정과 확장 ID만 크롬용과 다름)
 package.ps1          크롬 웹 스토어용 zip과 파이어폭스용 폴더/zip 생성 스크립트 (zip은 dist/에 생성)
 PRIVACY.md           개인정보처리방침 (스토어 등록용)
 STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
@@ -102,8 +101,8 @@ STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
 버전별 상세 내용은 [Releases](https://github.com/iamtalker/hate-speech-filter-extension/releases)에서도 확인할 수 있습니다.
 
 ### v1.10.2
-- **크롬 매니페스트 경고 제거.** v1.10.1에서 한 파일에 `service_worker`와 `scripts`를 같이 넣었더니 크롬이 동작은 하면서도 "'background.scripts' requires manifest version of 2 or lower" 경고를 띄움. 크롬용 `manifest.json`은 `service_worker`만 두고, 파이어폭스용은 `package.ps1`이 `firefox/` 폴더에 별도 매니페스트로 생성하도록 분리
-- 파이어폭스는 이제 `firefox/manifest.json`을 임시 설치하면 됨. 파이어폭스 제출용 zip도 `dist/`에 함께 생성
+- **크롬 매니페스트 경고 제거.** v1.10.1에서 한 파일에 `service_worker`와 `scripts`를 같이 넣었더니 크롬이 동작은 하면서도 "'background.scripts' requires manifest version of 2 or lower" 경고를 띄움. 크롬용 `manifest.json`은 `service_worker`만 두고, 파이어폭스용은 `package.ps1`이 별도 매니페스트로 생성하도록 분리
+- 파이어폭스용 폴더는 저장소에 커밋하지 않고 `package.ps1`이 `dist/firefox/`(또는 `-FirefoxOut`으로 지정한 위치)에 매번 새로 만듦. 파이어폭스 제출용 zip도 `dist/`에 함께 생성
 
 ### v1.10.1
 - **파이어폭스 임시 설치 지원.** 매니페스트에 `background.scripts`를 `service_worker`와 함께 넣고(크롬 121+는 scripts를, 파이어폭스 121+는 service_worker를 무시), `background.js`가 서비스 워커일 때만 `importScripts`를 쓰도록 수정. 파이어폭스에서 `background.service_worker is currently disabled` 오류로 설치가 안 되던 문제 해결
