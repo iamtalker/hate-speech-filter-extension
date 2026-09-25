@@ -38,6 +38,10 @@
 3. "압축해제된 확장 프로그램을 로드합니다" 클릭
 4. 이 폴더(`hate-speech-filter-extension`) 선택
 
+### 파이어폭스 (실험적)
+
+파이어폭스 121 이상에서 임시 설치로 동작합니다. 주소창에 `about:debugging` → "이 Firefox" → "임시 부가 기능 로드" → 폴더의 `manifest.json` 선택. 브라우저를 껐다 켜면 사라집니다. 일반 파이어폭스는 서명되지 않은 확장을 파일로 설치할 수 없어서 zip을 직접 넣으면 "파일이 손상된 것 같다"는 식의 오류가 납니다. 계속 쓰려면 addons.mozilla.org에서 "미등록(unlisted)"으로 제출해 서명받은 파일을 설치하세요. 모든 사이트에서 동작하려면 `about:addons`의 확장 권한 탭에서 사이트 접근을 허용해야 할 수 있습니다.
+
 ## 기능
 
 - 표시 방식 선택 가능: **블러 처리**(흐리게, 클릭하면 보기) / **숨기기**(안 보임, 클릭하면 보기) / **완전 삭제**(배지도 없이 흔적 없이 사라짐, 복구 불가)
@@ -95,6 +99,10 @@ STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
 ## 변경 이력
 
 버전별 상세 내용은 [Releases](https://github.com/iamtalker/hate-speech-filter-extension/releases)에서도 확인할 수 있습니다.
+
+### v1.10.1
+- **파이어폭스 임시 설치 지원.** 매니페스트에 `background.scripts`를 `service_worker`와 함께 넣고(크롬 121+는 scripts를, 파이어폭스 121+는 service_worker를 무시), `background.js`가 서비스 워커일 때만 `importScripts`를 쓰도록 수정. 파이어폭스에서 `background.service_worker is currently disabled` 오류로 설치가 안 되던 문제 해결
+- 파이어폭스용 확장 ID와 최소 버전, 데이터 수집 없음(`data_collection_permissions`) 선언 추가. 크롬은 이 키를 무시함
 
 ### v1.10.0
 - **제외 사이트를 페이지 단위로도 지정 가능.** 기존에는 주소를 넣어도 도메인만 남기고 경로와 검색조건이 잘렸는데, 이제 `todayhumor.co.kr/board/list.php?kind=member&mn=777080`처럼 넣으면 그 경로와 검색조건에 해당하는 페이지에서만 제외됨. 경로는 하위 경로까지 포함하고(`/board`는 `/board/list`에 해당, `/boardgame`에는 해당 안 함), 검색조건은 적은 key=value가 모두 있으면 해당함
