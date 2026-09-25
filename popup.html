@@ -58,13 +58,16 @@
 
   <section>
     <h2>제외 사이트</h2>
-    <p class="note">여기 등록한 사이트(및 서브도메인)에서는 확장 프로그램이 아예 동작하지 않습니다.</p>
+    <p class="note">등록한 사이트(및 서브도메인)에서는 확장 프로그램이 아예 동작하지 않습니다. 주소에 경로나 검색조건(?id=3)을 붙이면 그 페이지에서만 제외됩니다.</p>
     <div id="excludedSiteList" class="tag-list excluded-site-list"></div>
     <div class="add-row">
-      <input type="text" id="newExcludedSiteInput" placeholder="예: example.com" />
+      <input type="text" id="newExcludedSiteInput" placeholder="예: example.com 또는 전체 주소" />
       <button id="addExcludedSiteBtn">추가</button>
     </div>
-    <button id="addCurrentSiteBtn" class="secondary-btn full-width-btn">현재 보고 있는 사이트 추가</button>
+    <div class="add-row">
+      <button id="addCurrentSiteBtn" class="secondary-btn" title="지금 보고 있는 사이트 전체를 제외합니다">현재 사이트 추가</button>
+      <button id="addCurrentPageBtn" class="secondary-btn" title="지금 보고 있는 이 페이지(주소 전체)만 제외합니다">현재 페이지 추가</button>
+    </div>
   </section>
 
   <script src="wordlists.js"></script>

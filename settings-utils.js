@@ -7,7 +7,7 @@
 //     { id, label, enabled, groupTerms: [], explicitSlurs: [], ambiguousSlurs: [] },
 //     ...
 //   ],
-//   excludedSites: ["example.com", ...],  // 이 사이트(및 서브도메인)에서는 아예 동작하지 않음
+//   excludedSites: ["example.com", "example.com/board?id=3", ...],  // "host[/path][?query]" 형식. 해당하는 사이트/페이지에서는 아예 동작하지 않음
 //   displayMode: "blur" | "hide" | "remove"  // 감지된 글을 블러 처리 / 완전히 숨김(배지로 복구 가능) / 완전 삭제(배지도 없음, 복구 불가)
 // }
 //
@@ -96,8 +96,11 @@ function HSF_sanitizeExcludedSites(list) {
   const seen = new Set();
   const out = [];
   for (const raw of list) {
-    const site = String(raw || "").trim().toLowerCase();
-    if (!site || seen.has(site)) continue;
+    const trimmed = String(raw || "").trim();
+    const cut = trimmed.search(/[/?]/);
+    const host = (cut === -1 ? trimmed : trimmed.slice(0, cut)).toLowerCase();
+    const site = host + (cut === -1 ? "" : trimmed.slice(cut));
+    if (!host || seen.has(site)) continue;
     seen.add(site);
     out.push(site);
   }
@@ -135,9 +138,39 @@ function HSF_normalizeSettings(stored) {
   };
 }
 
-// hostname이 제외 목록에 걸리는지 확인한다. 등록한 도메인과 그 서브도메인을 모두 포함한다.
-function HSF_isHostExcluded(hostname, excludedSites) {
-  if (!hostname || !excludedSites || !excludedSites.length) return false;
-  const h = hostname.toLowerCase();
-  return excludedSites.some((site) => h === site || h.endsWith("." + site));
+// 제외 항목 "host[/path][?query]"를 나눈다.
+function HSF_parseExcludeEntry(entry) {
+  const q = entry.indexOf("?");
+  const base = q === -1 ? entry : entry.slice(0, q);
+  const query = q === -1 ? "" : entry.slice(q + 1);
+  const s = base.indexOf("/");
+  return {
+    host: s === -1 ? base : base.slice(0, s),
+    path: s === -1 ? "" : base.slice(s).replace(/\/+$/, ""),
+    query
+  };
+}
+
+// 현재 페이지(location)가 제외 목록에 걸리는지 확인한다.
+// - 호스트: 등록한 도메인과 그 서브도메인 모두 해당
+// - 경로: 등록한 경로와 그 하위 경로 모두 해당 (경로를 안 적으면 사이트 전체)
+// - 검색조건: 적힌 key=value가 전부 현재 주소에 있어야 해당 (순서, 다른 값은 무관)
+function HSF_isPageExcluded(loc, excludedSites) {
+  if (!loc || !loc.hostname || !excludedSites || !excludedSites.length) return false;
+  const h = loc.hostname.toLowerCase();
+
+  return excludedSites.some((entry) => {
+    const { host, path, query } = HSF_parseExcludeEntry(entry);
+    if (!host || !(h === host || h.endsWith("." + host))) return false;
+
+    if (path && !(loc.pathname === path || loc.pathname.startsWith(path + "/"))) return false;
+
+    if (query) {
+      const current = new URLSearchParams(loc.search);
+      for (const [key, value] of new URLSearchParams(query)) {
+        if (!current.getAll(key).includes(value)) return false;
+      }
+    }
+    return true;
+  });
 }

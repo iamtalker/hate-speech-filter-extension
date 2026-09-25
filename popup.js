@@ -25,6 +25,7 @@ const excludedSiteList = document.getElementById("excludedSiteList");
 const newExcludedSiteInput = document.getElementById("newExcludedSiteInput");
 const addExcludedSiteBtn = document.getElementById("addExcludedSiteBtn");
 const addCurrentSiteBtn = document.getElementById("addCurrentSiteBtn");
+const addCurrentPageBtn = document.getElementById("addCurrentPageBtn");
 
 function save() {
   chrome.storage.sync.set({ [STORAGE_KEY]: settings });
@@ -367,19 +368,21 @@ displayModeRemove.addEventListener("change", () => {
   }
 });
 
-function normalizeSiteInput(raw) {
-  let s = (raw || "").trim();
+// 입력(도메인 또는 전체 주소)을 "host[/path][?query]" 항목으로 정리한다.
+// 프로토콜, www., #해시는 제거한다. hostOnly면 경로와 검색조건도 버리고 도메인만 남긴다.
+function normalizeSiteInput(raw, hostOnly) {
+  const s = (raw || "").trim();
   if (!s) return "";
+  let url;
   try {
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) {
-      s = new URL(s).hostname;
-    } else if (s.includes("/")) {
-      s = s.split("/")[0];
-    }
+    url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : "https://" + s);
   } catch (e) {
     return "";
   }
-  return s.toLowerCase().replace(/^www\./, "");
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (!host || hostOnly) return host;
+  const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/, "");
+  return host + path + url.search;
 }
 
 function updateExcludedEmptyState() {
@@ -422,8 +425,8 @@ function renderExcludedSites() {
   updateExcludedEmptyState();
 }
 
-function addExcludedSite(rawSite) {
-  const site = normalizeSiteInput(rawSite);
+function addExcludedSite(rawSite, hostOnly) {
+  const site = normalizeSiteInput(rawSite, hostOnly);
   if (!site || settings.excludedSites.includes(site)) return;
   settings.excludedSites.push(site);
   save();
@@ -441,12 +444,15 @@ newExcludedSiteInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") addExcludedSiteBtn.click();
 });
 
-addCurrentSiteBtn.addEventListener("click", () => {
+function addCurrentTab(hostOnly) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const url = tabs && tabs[0] && tabs[0].url;
-    if (url) addExcludedSite(url);
+    if (url) addExcludedSite(url, hostOnly);
   });
-});
+}
+
+addCurrentSiteBtn.addEventListener("click", () => addCurrentTab(true));
+addCurrentPageBtn.addEventListener("click", () => addCurrentTab(false));
 
 chrome.storage.sync.get(STORAGE_KEY, (data) => {
   settings = HSF_normalizeSettings(data[STORAGE_KEY]);
