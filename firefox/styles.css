@@ -1,0 +1,37 @@
+.hsf-badge {
+  cursor: pointer;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  display: inline-block;
+  user-select: none;
+  font-family: -apple-system, "Malgun Gothic", sans-serif;
+  vertical-align: middle;
+}
+
+.hsf-badge.hsf-badge-active {
+  background: #7f8c8d;
+}
+
+.hsf-inner.hsf-hidden-content {
+  filter: blur(6px);
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+
+.hsf-inner:not(.hsf-hidden-content) {
+  filter: none;
+  transition: filter 0.15s ease;
+}
+
+.hsf-inner.hsf-hidden-full {
+  display: none;
+}
+
+.hsf-removed {
+  display: none !important;
+}

@@ -18,8 +18,15 @@
       "128": "icons/icon128.png"
     }
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hate-speech-filter@iamtalker.github.io",
+      "strict_min_version": "121.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["wordlists.js", "settings-utils.js", "background.js"]
   },
   "content_scripts": [
     {

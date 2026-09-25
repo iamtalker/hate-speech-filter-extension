@@ -1,0 +1,306 @@
+body {
+  width: 340px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 14px;
+  font-family: -apple-system, "Malgun Gothic", sans-serif;
+  color: #222;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+h1 {
+  font-size: 15px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 12px;
+  color: #666;
+  margin: 12px 0 6px;
+}
+
+.note {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.5;
+  margin: 6px 0 4px;
+}
+
+.radio-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: #333;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.radio-row input {
+  margin-top: 2px;
+}
+
+.radio-row strong {
+  font-weight: 600;
+}
+
+.radio-row-danger strong {
+  color: #c0392b;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-header h2 {
+  margin: 12px 0 6px;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.category-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.category-list li.empty-state {
+  color: #999;
+  font-size: 12px;
+  border-bottom: none;
+}
+
+.cat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.cat-label-input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-family: inherit;
+  color: #222;
+  padding: 2px 4px;
+  border-radius: 3px;
+  min-width: 0;
+}
+
+.cat-label-input:hover, .cat-label-input:focus {
+  background: #f5f5f5;
+  outline: none;
+}
+
+.cat-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cat-delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+
+.cat-words {
+  margin-top: 4px;
+}
+
+.cat-words summary {
+  font-size: 11px;
+  color: #2980b9;
+  cursor: pointer;
+  user-select: none;
+}
+
+.word-group {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 4px 0;
+  word-break: keep-all;
+}
+
+.word-group b {
+  display: block;
+  color: #555;
+  margin-bottom: 3px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 4px 1px 8px;
+  border-radius: 10px;
+  background: #eee;
+  color: #444;
+}
+
+.tag-empty {
+  color: #999;
+}
+
+.tag-remove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 3px;
+  color: inherit;
+}
+
+.word-group.wg-explicit .tag {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.word-group.wg-ambiguous .tag {
+  background: #fdf2e0;
+  color: #d68910;
+}
+
+.word-group.wg-group .tag {
+  background: #eee;
+  color: #555;
+}
+
+.add-row-small {
+  margin-bottom: 2px;
+}
+
+.add-row-small input {
+  padding: 2px 5px;
+}
+
+.add-row-small button {
+  padding: 2px 8px;
+}
+
+.reset-btn {
+  border: none;
+  background: none;
+  color: #999;
+  font-size: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.reset-btn-danger {
+  color: #c0392b;
+}
+
+.add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.add-row input {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-row button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  background: #2980b9;
+  color: #fff;
+  cursor: pointer;
+}
+
+.add-row button.secondary-btn {
+  flex: 1;
+  background: #f0f0f0;
+  color: #444;
+}
+
+.excluded-site-list {
+  margin-bottom: 8px;
+  min-height: 20px;
+}
+
+.excluded-site-list .tag {
+  word-break: break-all;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.2s;
+  border-radius: 18px;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #fff;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: #27ae60;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(16px);
+}
