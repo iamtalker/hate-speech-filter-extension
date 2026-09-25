@@ -31,7 +31,8 @@ $include = @(
   "popup.js",
   "popup.css",
   "styles.css",
-  "icons"
+  "icons",
+  "wordpacks"
 )
 
 $zip = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)

@@ -20,6 +20,7 @@ const addCategoryBtn = document.getElementById("addCategoryBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const importFileInput = document.getElementById("importFileInput");
+const installPackBtn = document.getElementById("installPackBtn");
 const excludedSiteList = document.getElementById("excludedSiteList");
 const newExcludedSiteInput = document.getElementById("newExcludedSiteInput");
 const addExcludedSiteBtn = document.getElementById("addExcludedSiteBtn");
@@ -110,6 +111,68 @@ function importCategories(file) {
 // 단어 하나 추가/삭제할 때 카테고리 목록 전체를 다시 그리면 열려있던 <details>가
 // 전부 닫히고 팝업 레이아웃이 크게 흔들려 팝업이 닫혀버리는 문제가 있었다.
 // 그래서 이 태그 목록만 직접 DOM을 조작해서 갱신한다 (전체 재렌더링 없음).
+const PACK_WORD_KEYS = ["groupTerms", "explicitSlurs", "ambiguousSlurs"];
+
+// 팩의 카테고리를 기존 카테고리(id 또는 이름이 같은 것)에 합치고, 없으면 새 카테고리로 추가한다.
+// 기존 단어는 절대 지우지 않고, 없는 단어만 더한다.
+function mergePackCategories(packCategories) {
+  const result = { addedWords: 0, addedCategories: 0, mergedCategories: 0 };
+
+  for (const incoming of packCategories.map(HSF_sanitizeCategory)) {
+    const existing = settings.categories.find(
+      (c) => c.id === incoming.id || c.label === incoming.label
+    );
+
+    if (!existing) {
+      settings.categories.push(incoming);
+      result.addedCategories++;
+      result.addedWords += PACK_WORD_KEYS.reduce((n, k) => n + incoming[k].length, 0);
+      continue;
+    }
+
+    let changed = false;
+    for (const key of PACK_WORD_KEYS) {
+      for (const word of incoming[key]) {
+        if (!existing[key].includes(word)) {
+          existing[key].push(word);
+          result.addedWords++;
+          changed = true;
+        }
+      }
+    }
+    if (changed) result.mergedCategories++;
+  }
+
+  return result;
+}
+
+async function installExtendedPack() {
+  let pack;
+  try {
+    const res = await fetch(chrome.runtime.getURL("wordpacks/extended-word-pack.json"));
+    pack = await res.json();
+  } catch (e) {
+    alert("확장 단어 팩을 불러오지 못했습니다.");
+    return;
+  }
+  if (!pack || !Array.isArray(pack.categories)) {
+    alert("확장 단어 팩 형식이 올바르지 않습니다.");
+    return;
+  }
+
+  if (!confirm(`확장 단어 팩(카테고리 ${pack.categories.length}개)을 설치할까요?\n기존 카테고리와 단어는 그대로 두고, 없는 단어만 추가합니다.`)) return;
+
+  const r = mergePackCategories(pack.categories);
+  save();
+  renderCategories();
+
+  if (r.addedWords === 0) {
+    alert("이미 모든 단어가 들어 있어서 추가된 것이 없습니다.");
+  } else {
+    alert(`설치 완료: 단어 ${r.addedWords}개 추가 (새 카테고리 ${r.addedCategories}개, 기존 카테고리 ${r.mergedCategories}개에 병합)\n열려 있는 페이지는 새로고침해야 적용됩니다.`);
+  }
+}
+
 function renderWordType(cat, type, title, cls, words) {
   const wrap = document.createElement("div");
   wrap.className = "word-group " + cls;
@@ -269,6 +332,7 @@ newCategoryInput.addEventListener("keydown", (e) => {
 resetAllBtn.addEventListener("click", resetAllCategories);
 deleteAllBtn.addEventListener("click", deleteAllCategories);
 
+installPackBtn.addEventListener("click", installExtendedPack);
 exportBtn.addEventListener("click", exportCategories);
 importBtn.addEventListener("click", () => importFileInput.click());
 importFileInput.addEventListener("change", () => {
