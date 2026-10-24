@@ -113,6 +113,14 @@
     return row;
   }
 
+  // 닉네임·게시판 이름은 strong/em 같은 인라인 태그에 들어 있는 경우도 많다.
+  const NAME_SELECTOR = BLOCK_SELECTOR + ", strong, b, em, font, label";
+
+  // 비교할 때는 앞뒤 대괄호/괄호와 공백, 대소문자를 무시한다. (예: "[러갤]" = "러갤")
+  function normalizeName(text) {
+    return text.trim().replace(/^[\[(【]+|[\])】]+$/g, "").trim().toLowerCase();
+  }
+
   function hideRow(row) {
     row.classList.add("hsf-removed");
   }
@@ -135,12 +143,12 @@
     }
 
     if (nicknames.size) {
-      const els = root.matches && root.matches(BLOCK_SELECTOR) ? [root] : [];
-      els.push(...root.querySelectorAll(BLOCK_SELECTOR));
+      const els = root.matches && root.matches(NAME_SELECTOR) ? [root] : [];
+      els.push(...root.querySelectorAll(NAME_SELECTOR));
       for (const el of els) {
         if (el.dataset.hsfNickChecked || el.children.length > 2) continue;
         el.dataset.hsfNickChecked = "1";
-        if (!nicknames.has((el.textContent || "").trim().toLowerCase())) continue;
+        if (!nicknames.has(normalizeName(el.textContent || ""))) continue;
         const row = findRow(el);
         if (row) hideRow(row);
       }
@@ -171,7 +179,7 @@
     if (!settings.enabled) return;
     const rules = compileRules(settings);
     const blockedPages = settings.blockedPages;
-    const nicknames = new Set(settings.blockedNicknames.map((n) => n.toLowerCase()));
+    const nicknames = new Set(settings.blockedNicknames.map(normalizeName));
     const hasBlocking = blockedPages.length > 0 || nicknames.size > 0;
     if (!rules.length && !hasBlocking) return;
     const mode = settings.displayMode;
