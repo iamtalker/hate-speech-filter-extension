@@ -253,7 +253,24 @@
     start(settings);
   }
 
-  chrome.storage.sync.get(STORAGE_KEY, (data) => apply(HSF_normalizeSettings(data[STORAGE_KEY])));
+  // 설정은 비동기로 읽어 오기 때문에, 그 사이에 페이지가 먼저 그려지면 차단 대상이 잠깐 보였다가 사라진다.
+  // 설정을 읽어 처음 적용할 때까지 페이지 그리기를 잠시 미루고(styles.css의 hsf-pending),
+  // 적용이 끝나면 바로 푼다. 설정을 못 읽는 경우에 대비해 일정 시간 뒤에는 무조건 푼다.
+  const htmlEl = document.documentElement;
+  htmlEl.classList.add("hsf-pending");
+  const reveal = () => {
+    clearTimeout(revealTimer);
+    htmlEl.classList.remove("hsf-pending");
+  };
+  const revealTimer = setTimeout(reveal, 500);
+
+  chrome.storage.sync.get(STORAGE_KEY, (data) => {
+    try {
+      apply(HSF_normalizeSettings(data[STORAGE_KEY]));
+    } finally {
+      reveal();
+    }
+  });
 
   // 설정 페이지나 팝업에서 바꾸면(다른 기기에서 동기화된 변경 포함) 열려 있는 페이지에도 바로 적용한다.
   chrome.storage.onChanged.addListener((changes, area) => {
