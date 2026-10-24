@@ -165,6 +165,8 @@
     document.documentElement.appendChild(cover);
   }
 
+  let observer = null;
+
   function start(settings) {
     if (!settings.enabled) return;
     const rules = compileRules(settings);
@@ -183,7 +185,7 @@
 
     scanAll(document.body);
 
-    const observer = new MutationObserver((mutations) => {
+    observer = new MutationObserver((mutations) => {
       for (const mut of mutations) {
         for (const node of mut.addedNodes) {
           if (node.nodeType === 1) scanAll(node);
@@ -193,9 +195,41 @@
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  chrome.storage.sync.get(STORAGE_KEY, (data) => {
-    const settings = HSF_normalizeSettings(data[STORAGE_KEY]);
+  // 이 스크립트가 페이지에 가한 변경(블러 래핑, 숨긴 줄, 페이지 덮개, 표시용 데이터 속성)을 전부 되돌린다.
+  function teardown() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+    for (const inner of document.querySelectorAll(".hsf-inner")) {
+      const parent = inner.parentNode;
+      while (inner.firstChild) parent.insertBefore(inner.firstChild, inner);
+      inner.remove();
+    }
+    document.querySelectorAll(".hsf-badge, .hsf-page-block").forEach((el) => el.remove());
+    document.querySelectorAll(".hsf-removed").forEach((el) => el.classList.remove("hsf-removed"));
+    document
+      .querySelectorAll("[data-hsf-processed], [data-hsf-blurred], [data-hsf-link-checked], [data-hsf-nick-checked]")
+      .forEach((el) => {
+        delete el.dataset.hsfProcessed;
+        delete el.dataset.hsfBlurred;
+        delete el.dataset.hsfLinkChecked;
+        delete el.dataset.hsfNickChecked;
+      });
+  }
+
+  function apply(settings) {
+    teardown();
     if (HSF_isPageExcluded(location, settings.excludedSites)) return;
     start(settings);
+  }
+
+  chrome.storage.sync.get(STORAGE_KEY, (data) => apply(HSF_normalizeSettings(data[STORAGE_KEY])));
+
+  // 설정 페이지나 팝업에서 바꾸면(다른 기기에서 동기화된 변경 포함) 열려 있는 페이지에도 바로 적용한다.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes[STORAGE_KEY]) {
+      apply(HSF_normalizeSettings(changes[STORAGE_KEY].newValue));
+    }
   });
 })();

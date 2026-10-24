@@ -190,7 +190,7 @@ async function installExtendedPack() {
   if (r.addedWords === 0) {
     alert("이미 모든 단어가 들어 있어서 추가된 것이 없습니다.");
   } else {
-    alert(`설치 완료: 단어 ${r.addedWords}개 추가 (새 카테고리 ${r.addedCategories}개, 기존 카테고리 ${r.mergedCategories}개에 병합)\n열려 있는 페이지는 새로고침해야 적용됩니다.`);
+    alert(`설치 완료: 단어 ${r.addedWords}개 추가 (새 카테고리 ${r.addedCategories}개, 기존 카테고리 ${r.mergedCategories}개에 병합)`);
   }
 }
 
