@@ -126,7 +126,8 @@
   }
 
   // 차단한 게시판으로 가는 링크, 차단한 닉네임이 적힌 요소가 있으면 그 줄을 통째로 숨긴다.
-  function scanBlocked(root, blockedPages, nicknames) {
+  // final이 false인 동안은 아직 로딩 중이라 글자가 덜 들어왔을 수 있어서, 닉네임 검사 완료 표시를 하지 않는다.
+  function scanBlocked(root, blockedPages, nicknames, final) {
     if (!root || !root.querySelectorAll) return;
 
     if (blockedPages.length) {
@@ -147,7 +148,7 @@
       els.push(...root.querySelectorAll(NAME_SELECTOR));
       for (const el of els) {
         if (el.dataset.hsfNickChecked || el.children.length > 2) continue;
-        el.dataset.hsfNickChecked = "1";
+        if (final) el.dataset.hsfNickChecked = "1";
         if (!nicknames.has(normalizeName(el.textContent || ""))) continue;
         const row = findRow(el);
         if (row) hideRow(row);
@@ -174,7 +175,11 @@
   }
 
   let observer = null;
+  let readyHandler = null;
 
+  // document_start에 실행되므로 페이지가 그려지기 전부터 들어오는 노드를 바로 처리한다.
+  // 차단 페이지/닉네임은 로딩 중에도 즉시 숨기고(깜빡임 방지), 혐오표현 검사는
+  // 글자가 다 들어온 뒤(DOMContentLoaded)부터 한다.
   function start(settings) {
     if (!settings.enabled) return;
     const rules = compileRules(settings);
@@ -186,21 +191,33 @@
 
     if (HSF_isUrlBlocked(location, blockedPages)) showPageBlock();
 
+    let domReady = document.readyState !== "loading";
+
     function scanAll(root) {
-      if (hasBlocking) scanBlocked(root, blockedPages, nicknames);
-      if (rules.length) scan(root, rules, mode);
+      if (hasBlocking) scanBlocked(root, blockedPages, nicknames, domReady);
+      if (domReady && rules.length) scan(root, rules, mode);
     }
 
-    scanAll(document.body);
+    if (document.documentElement) scanAll(document.documentElement);
 
     observer = new MutationObserver((mutations) => {
       for (const mut of mutations) {
         for (const node of mut.addedNodes) {
           if (node.nodeType === 1) scanAll(node);
+          else if (node.nodeType === 3 && node.parentElement) scanAll(node.parentElement);
         }
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    if (!domReady) {
+      readyHandler = () => {
+        readyHandler = null;
+        domReady = true;
+        if (document.body) scanAll(document.body);
+      };
+      document.addEventListener("DOMContentLoaded", readyHandler, { once: true });
+    }
   }
 
   // 이 스크립트가 페이지에 가한 변경(블러 래핑, 숨긴 줄, 페이지 덮개, 표시용 데이터 속성)을 전부 되돌린다.
@@ -208,6 +225,10 @@
     if (observer) {
       observer.disconnect();
       observer = null;
+    }
+    if (readyHandler) {
+      document.removeEventListener("DOMContentLoaded", readyHandler);
+      readyHandler = null;
     }
     for (const inner of document.querySelectorAll(".hsf-inner")) {
       const parent = inner.parentNode;
