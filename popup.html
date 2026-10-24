@@ -15,8 +15,7 @@
   </header>
 
   <p class="note">
-    지역명·성별·국적 같은 중립 단어는 차단하지 않고, 실제 멸칭이나 "중립 단어 + 멸칭" 조합이
-    함께 등장할 때만 글을 가립니다. 설정 변경 후에는 페이지를 새로고침 해야 적용됩니다.
+    설정을 바꾼 뒤에는 열려 있는 페이지를 새로고침해야 적용됩니다.
   </p>
 
   <section>
@@ -36,61 +35,7 @@
   </section>
 
   <section>
-    <div class="section-header">
-      <h2>카테고리</h2>
-      <div class="header-actions">
-        <button id="deleteAllBtn" class="reset-btn reset-btn-danger">전체 삭제</button>
-        <button id="resetAllBtn" class="reset-btn">기본 카테고리로 초기화</button>
-        <button id="installPackBtn" class="reset-btn" title="세대·성별·인종·지역·민족·국적·장애 관련 단어를 더 폭넓게 담은 선택 팩입니다. 기존 카테고리는 그대로 두고 없는 단어만 추가합니다.">확장 단어 팩 설치</button>
-      </div>
-    </div>
-    <ul id="categoryList" class="category-list"></ul>
-    <div class="add-row">
-      <input type="text" id="newCategoryInput" placeholder="새 카테고리 이름 (예: 외모비하)" />
-      <button id="addCategoryBtn">추가</button>
-    </div>
-    <div class="add-row">
-      <button id="exportBtn" class="secondary-btn">내보내기</button>
-      <button id="importBtn" class="secondary-btn">가져오기</button>
-      <input type="file" id="importFileInput" accept="application/json" hidden />
-    </div>
-  </section>
-
-  <section>
-    <h2>차단 페이지</h2>
-    <p class="note">오늘은 보기 싫은 게시판을 가립니다. 그 주소로 들어가면 화면이 가려지고, 다른 페이지(최신글 목록 등)에 있는 그 게시판 글의 줄도 사라집니다. 게시판을 나타내는 부분만 적으세요.</p>
-    <div id="blockedPageList" class="tag-list excluded-site-list"></div>
-    <div class="add-row">
-      <input type="text" id="newBlockedPageInput" placeholder="사이트 주소 또는 게시판 주소" />
-      <button id="addBlockedPageBtn">추가</button>
-    </div>
-    <div class="add-row">
-      <button id="fillCurrentPageBtn" class="secondary-btn" title="지금 보고 있는 주소를 입력칸에 넣습니다. 게시판을 나타내는 부분만 남기고 추가하세요">현재 주소 넣기</button>
-    </div>
-  </section>
-
-  <section>
-    <h2>차단 닉네임</h2>
-    <p class="note">이 닉네임이 적힌 글·댓글의 줄을 숨깁니다. 이름이 정확히 일치할 때만 해당합니다(대소문자 무시).</p>
-    <div id="blockedNicknameList" class="tag-list"></div>
-    <div class="add-row">
-      <input type="text" id="newBlockedNicknameInput" placeholder="닉네임" />
-      <button id="addBlockedNicknameBtn">추가</button>
-    </div>
-  </section>
-
-  <section>
-    <h2>제외 사이트</h2>
-    <p class="note">등록한 사이트(및 서브도메인)에서는 확장 프로그램이 아예 동작하지 않습니다. 주소에 경로나 검색조건(?id=3)을 붙이면 그 페이지에서만 제외됩니다.</p>
-    <div id="excludedSiteList" class="tag-list excluded-site-list"></div>
-    <div class="add-row">
-      <input type="text" id="newExcludedSiteInput" placeholder="예: example.com 또는 전체 주소" />
-      <button id="addExcludedSiteBtn">추가</button>
-    </div>
-    <div class="add-row">
-      <button id="addCurrentSiteBtn" class="secondary-btn" title="지금 보고 있는 사이트 전체를 제외합니다">현재 사이트 추가</button>
-      <button id="addCurrentPageBtn" class="secondary-btn" title="지금 보고 있는 이 페이지(주소 전체)만 제외합니다">현재 페이지 추가</button>
-    </div>
+    <button id="openOptionsBtn" class="secondary-btn">설정 (카테고리·차단·제외 사이트)</button>
   </section>
 
   <script src="wordlists.js"></script>

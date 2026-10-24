@@ -1,0 +1,31 @@
+body {
+  width: auto;
+  max-width: 1100px;
+  max-height: none;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* 왼쪽: 혐오표현 필터(카테고리), 오른쪽: 차단·제외 설정 */
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 팝업용 작은 글자 크기를 설정 페이지에서는 키운다 */
+h1 { font-size: 22px; }
+h2 { font-size: 16px; }
+.note, .cat-words summary, .word-group { font-size: 14px; }
+.radio-row, .category-list li.empty-state, .cat-delete, .tag-remove,
+.add-row input, .add-row button, .secondary-btn { font-size: 14px; }
+.cat-header, .cat-label-input { font-size: 15px; }
+.reset-btn { font-size: 13px; }
+.tag, .tag-empty { font-size: 14px; }

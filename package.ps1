@@ -42,6 +42,9 @@ $include = @(
   "popup.html",
   "popup.js",
   "popup.css",
+  "options.html",
+  "options.js",
+  "options.css",
   "styles.css",
   "icons",
   "wordpacks"
