@@ -57,6 +57,29 @@
   </section>
 
   <section>
+    <h2>차단 페이지</h2>
+    <p class="note">오늘은 보기 싫은 게시판을 가립니다. 그 주소로 들어가면 화면이 가려지고, 다른 페이지(최신글 목록 등)에 있는 그 게시판 글의 줄도 사라집니다. 게시판을 나타내는 부분만 적으세요. 예: todayhumor.co.kr/board/list.php?table=sisa</p>
+    <div id="blockedPageList" class="tag-list excluded-site-list"></div>
+    <div class="add-row">
+      <input type="text" id="newBlockedPageInput" placeholder="예: todayhumor.co.kr/board/list.php?table=sisa" />
+      <button id="addBlockedPageBtn">추가</button>
+    </div>
+    <div class="add-row">
+      <button id="fillCurrentPageBtn" class="secondary-btn" title="지금 보고 있는 주소를 입력칸에 넣습니다. 게시판을 나타내는 부분만 남기고 추가하세요">현재 주소 넣기</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>차단 닉네임</h2>
+    <p class="note">이 닉네임이 적힌 글·댓글의 줄을 숨깁니다. 이름이 정확히 일치할 때만 해당합니다(대소문자 무시).</p>
+    <div id="blockedNicknameList" class="tag-list"></div>
+    <div class="add-row">
+      <input type="text" id="newBlockedNicknameInput" placeholder="닉네임" />
+      <button id="addBlockedNicknameBtn">추가</button>
+    </div>
+  </section>
+
+  <section>
     <h2>제외 사이트</h2>
     <p class="note">등록한 사이트(및 서브도메인)에서는 확장 프로그램이 아예 동작하지 않습니다. 주소에 경로나 검색조건(?id=3)을 붙이면 그 페이지에서만 제외됩니다.</p>
     <div id="excludedSiteList" class="tag-list excluded-site-list"></div>

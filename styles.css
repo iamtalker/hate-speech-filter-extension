@@ -35,3 +35,30 @@
 .hsf-removed {
   display: none !important;
 }
+
+.hsf-page-block {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #fff;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, "Malgun Gothic", sans-serif;
+  text-align: center;
+}
+
+.hsf-page-block p {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.hsf-page-block button {
+  cursor: pointer;
+  padding: 6px 14px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #f4f4f4;
+  font-size: 13px;
+}

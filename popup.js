@@ -6,7 +6,7 @@ const WORD_TYPES = [
   { key: "ambiguousSlurs", title: "모호한 표현 (집단어와 같이 나올 때만 차단)", cls: "wg-ambiguous" }
 ];
 
-let settings = { enabled: true, categories: [], excludedSites: [], displayMode: "blur" };
+let settings = { enabled: true, categories: [], excludedSites: [], blockedPages: [], blockedNicknames: [], displayMode: "blur" };
 
 const masterToggle = document.getElementById("masterToggle");
 const displayModeBlur = document.getElementById("displayModeBlur");
@@ -454,6 +454,90 @@ function addCurrentTab(hostOnly) {
 addCurrentSiteBtn.addEventListener("click", () => addCurrentTab(true));
 addCurrentPageBtn.addEventListener("click", () => addCurrentTab(false));
 
+// 문자열 목록(차단 페이지, 차단 닉네임)을 태그로 보여주고 추가·삭제하는 편집기.
+// 전체를 다시 그리지 않고 태그만 조작한다 (위 단어 태그와 같은 이유).
+function createListEditor(listEl, inputEl, addBtn, key, normalize) {
+  function updateEmpty() {
+    const empty = listEl.querySelector(".tag-empty");
+    if (settings[key].length === 0 && !empty) {
+      const span = document.createElement("span");
+      span.className = "tag-empty";
+      span.textContent = "(없음)";
+      listEl.appendChild(span);
+    } else if (settings[key].length > 0 && empty) {
+      empty.remove();
+    }
+  }
+
+  function addTag(value) {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = value;
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "tag-remove";
+    x.textContent = "×";
+    x.title = "삭제";
+    x.addEventListener("click", () => {
+      const idx = settings[key].indexOf(value);
+      if (idx !== -1) settings[key].splice(idx, 1);
+      save();
+      tag.remove();
+      updateEmpty();
+    });
+    tag.appendChild(x);
+    listEl.appendChild(tag);
+  }
+
+  function submit() {
+    const value = normalize(inputEl.value);
+    inputEl.value = "";
+    inputEl.focus();
+    if (!value || settings[key].includes(value)) return;
+    settings[key].push(value);
+    save();
+    addTag(value);
+    updateEmpty();
+  }
+
+  addBtn.addEventListener("click", submit);
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submit();
+  });
+
+  return function render() {
+    listEl.innerHTML = "";
+    settings[key].forEach(addTag);
+    updateEmpty();
+  };
+}
+
+const newBlockedPageInput = document.getElementById("newBlockedPageInput");
+const renderBlockedPages = createListEditor(
+  document.getElementById("blockedPageList"),
+  newBlockedPageInput,
+  document.getElementById("addBlockedPageBtn"),
+  "blockedPages",
+  (raw) => normalizeSiteInput(raw, false)
+);
+const renderBlockedNicknames = createListEditor(
+  document.getElementById("blockedNicknameList"),
+  document.getElementById("newBlockedNicknameInput"),
+  document.getElementById("addBlockedNicknameBtn"),
+  "blockedNicknames",
+  (raw) => raw.trim()
+);
+
+document.getElementById("fillCurrentPageBtn").addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const url = tabs && tabs[0] && tabs[0].url;
+    if (url) {
+      newBlockedPageInput.value = normalizeSiteInput(url, false);
+      newBlockedPageInput.focus();
+    }
+  });
+});
+
 chrome.storage.sync.get(STORAGE_KEY, (data) => {
   settings = HSF_normalizeSettings(data[STORAGE_KEY]);
   masterToggle.checked = settings.enabled;
@@ -462,4 +546,6 @@ chrome.storage.sync.get(STORAGE_KEY, (data) => {
   displayModeRemove.checked = settings.displayMode === "remove";
   renderCategories();
   renderExcludedSites();
+  renderBlockedPages();
+  renderBlockedNicknames();
 });
