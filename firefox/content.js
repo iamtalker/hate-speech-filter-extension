@@ -176,6 +176,21 @@
 
   let observer = null;
   let readyHandler = null;
+  let readyStateHandler = null;
+  let readyTimer = null;
+
+  // 로딩이 끝났는지 기다리느라 걸어 둔 리스너와 타이머를 모두 정리한다.
+  function cleanupReadyWaiters() {
+    if (readyHandler) {
+      document.removeEventListener("DOMContentLoaded", readyHandler);
+      window.removeEventListener("load", readyHandler);
+    }
+    if (readyStateHandler) document.removeEventListener("readystatechange", readyStateHandler);
+    clearTimeout(readyTimer);
+    readyHandler = null;
+    readyStateHandler = null;
+    readyTimer = null;
+  }
 
   // document_start에 실행되므로 페이지가 그려지기 전부터 들어오는 노드를 바로 처리한다.
   // 차단 페이지/닉네임은 로딩 중에도 즉시 숨기고(깜빡임 방지), 혐오표현 검사는
@@ -210,13 +225,22 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
 
+    // DOMContentLoaded만 기다리면 파이어폭스에서 새로고침 때 그 신호가 오지 않아 검사가 시작되지 않는 경우가 있었다.
+    // 그래서 readystatechange/load도 같이 듣고, 그래도 안 오면 일정 시간 뒤에는 로딩이 끝난 것으로 보고 검사한다.
     if (!domReady) {
       readyHandler = () => {
-        readyHandler = null;
+        if (domReady) return;
         domReady = true;
+        cleanupReadyWaiters();
         if (document.body) scanAll(document.body);
       };
-      document.addEventListener("DOMContentLoaded", readyHandler, { once: true });
+      document.addEventListener("DOMContentLoaded", readyHandler);
+      readyStateHandler = () => {
+        if (document.readyState !== "loading" && readyHandler) readyHandler();
+      };
+      document.addEventListener("readystatechange", readyStateHandler);
+      window.addEventListener("load", readyHandler);
+      readyTimer = setTimeout(readyHandler, 1500);
     }
   }
 
@@ -226,10 +250,7 @@
       observer.disconnect();
       observer = null;
     }
-    if (readyHandler) {
-      document.removeEventListener("DOMContentLoaded", readyHandler);
-      readyHandler = null;
-    }
+    cleanupReadyWaiters();
     for (const inner of document.querySelectorAll(".hsf-inner")) {
       const parent = inner.parentNode;
       while (inner.firstChild) parent.insertBefore(inner.firstChild, inner);
