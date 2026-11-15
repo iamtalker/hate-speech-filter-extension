@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>혐오표현 필터</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>혐오표현 필터</h1>
+    <label class="switch">
+      <input type="checkbox" id="masterToggle" />
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <section>
+    <h2>표시 방식</h2>
+    <label class="radio-row">
+      <input type="radio" name="displayMode" id="displayModeBlur" value="blur" />
+      <span><strong>블러 처리</strong> — 흐리게 보이고 클릭하면 볼 수 있음</span>
+    </label>
+    <label class="radio-row">
+      <input type="radio" name="displayMode" id="displayModeHide" value="hide" />
+      <span><strong>숨기기</strong> — 안 보이고 클릭하면 볼 수 있음</span>
+    </label>
+    <label class="radio-row radio-row-danger">
+      <input type="radio" name="displayMode" id="displayModeRemove" value="remove" />
+      <span><strong>완전 삭제</strong> — 배지도 없이 흔적 없이 사라짐, 다시 볼 수 없음</span>
+    </label>
+  </section>
+
+  <section>
+    <button id="openOptionsBtn" class="secondary-btn">설정 (카테고리·차단·제외 사이트)</button>
+  </section>
+
+  <script src="wordlists.js"></script>
+  <script src="settings-utils.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

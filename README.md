@@ -36,7 +36,11 @@
 1. `chrome://extensions` 접속
 2. 우측 상단 "개발자 모드" 켜기
 3. "압축해제된 확장 프로그램을 로드합니다" 클릭
-4. 이 폴더(`hate-speech-filter-extension`) 선택
+4. 이 저장소의 `chrome/` 폴더 선택
+
+### Firefox (PC·안드로이드)
+
+`firefox/` 폴더에 파이어폭스용 포팅이 들어 있습니다. 크롬은 안드로이드에서 확장을 지원하지 않아서, 폰에서 쓰려면 안드로이드 Firefox가 사실상 유일한 방법입니다. 설치와 개발 방법은 [firefox/README.md](firefox/README.md)를 참고하세요. 현재는 AMO 자체 배포(비공개) 상태이고, 공개 등록은 로드맵에 있습니다. 릴리즈는 `-chrome`, `-firefox` 접미사로 따로 나옵니다.
 
 ## 기능
 
@@ -57,7 +61,7 @@
 
 ## 확장 단어 팩 (선택 사항)
 
-기본 제공 카테고리는 일부러 작게 유지하고 있습니다(개인 맞춤형 도구라는 정체성 때문입니다 — [설계 원칙](#설계-원칙) 참고). 대신 더 넓은 커버리지를 원하는 사람을 위해 [`wordpacks/extended-word-pack.json`](wordpacks/extended-word-pack.json)에 **세대차별·성차별·지역차별·민족차별·인종·국적차별·장애 비하** 6개 카테고리로 구성된 확장 단어 팩을 선택 사항으로 제공합니다. 팩은 기본 목록의 모든 단어를 포함하는 상위 집합이라서, 기본 카테고리로 초기화한 뒤 팩을 설치하면 이전 상태 이상으로 복원됩니다.
+기본 제공 카테고리는 일부러 작게 유지하고 있습니다(개인 맞춤형 도구라는 정체성 때문입니다 — [설계 원칙](#설계-원칙) 참고). 대신 더 넓은 커버리지를 원하는 사람을 위해 [`chrome/wordpacks/extended-word-pack.json`](chrome/wordpacks/extended-word-pack.json)에 **세대차별·성차별·지역차별·민족차별·인종·국적차별·장애 비하** 6개 카테고리로 구성된 확장 단어 팩을 선택 사항으로 제공합니다. 팩은 기본 목록의 모든 단어를 포함하는 상위 집합이라서, 기본 카테고리로 초기화한 뒤 팩을 설치하면 이전 상태 이상으로 복원됩니다.
 
 **설치 방법**: 설정 페이지의 카테고리 섹션 우측 상단, "기본 카테고리로 초기화" 아래에 있는 **"확장 단어 팩 설치"** 버튼을 누르면 됩니다. 팩은 확장 프로그램에 함께 들어 있어서 외부에서 받아오지 않으며(인터넷 요청 없음), 누르기 전까지는 아무것도 추가되지 않습니다. 기존 카테고리와 단어는 그대로 두고, 이름이나 id가 같은 카테고리에는 없는 단어만 합치고, 없는 카테고리는 새로 만듭니다. 여러 번 눌러도 중복 추가되지 않습니다.
 
@@ -68,30 +72,32 @@ JSON 파일을 직접 다루고 싶다면 설정 페이지의 "가져오기"로 
 ## 폴더 구조
 
 ```
-manifest.json      확장프로그램 설정 (Manifest V3)
-wordlists.js        최초 설치 시 시드로 쓰이는 기본 카테고리/단어 목록
-settings-utils.js   설정 정규화, 구버전 데이터 마이그레이션 (공통 유틸)
-content.js          페이지 스캔 및 블러 처리 로직
-background.js       설치 시 기본 설정 초기화
-popup.html/js/css   툴바 팝업 (켜기/끄기, 표시 방식)
-options.html/js/css 설정 페이지 (카테고리, 차단 페이지·닉네임, 제외 사이트)
-styles.css          블러/배지 스타일
-icons/              툴바/스토어용 아이콘 (16/48/128px, 확장프로그램 패키지에 포함됨)
-store-assets/        스토어 등록 전용 이미지 (프로모션 타일 등, 패키지에는 미포함)
-wordpacks/            선택 설치용 확장 단어 팩 (패키지에 포함, 설정 페이지의 "확장 단어 팩 설치" 버튼으로 병합)
-package.ps1          크롬 웹 스토어용 zip 생성 스크립트 (zip은 dist/에 생성)
-PRIVACY.md           개인정보처리방침 (스토어 등록용)
-STORE_LISTING.md      스토어 등록용 설명문/체크리스트 초안
+PRIVACY.md             개인정보처리방침 (크롬·파이어폭스 공통, 스토어 등록용. 스토어에 이 주소가 걸려 있어 루트에 둠)
+chrome/                크롬 확장 (크롬 웹 스토어 배포)
+  manifest.json        확장프로그램 설정 (Manifest V3)
+  wordlists.js         최초 설치 시 시드로 쓰이는 기본 카테고리/단어 목록
+  settings-utils.js    설정 정규화, 구버전 데이터 마이그레이션 (공통 유틸)
+  content.js           페이지 스캔 및 블러 처리 로직
+  background.js        설치 시 기본 설정 초기화
+  popup.html/js/css    툴바 팝업 (켜기/끄기, 표시 방식)
+  options.html/js/css  설정 페이지 (카테고리, 차단 페이지·닉네임, 제외 사이트)
+  styles.css           블러/배지 스타일
+  icons/               툴바/스토어용 아이콘 (16/48/128px, 확장프로그램 패키지에 포함됨)
+  store-assets/        스토어 등록 전용 이미지 (프로모션 타일 등, 패키지에는 미포함)
+  wordpacks/           선택 설치용 확장 단어 팩 (패키지에 포함, 설정 페이지의 "확장 단어 팩 설치" 버튼으로 병합)
+  package.ps1          크롬 웹 스토어용 zip 생성 스크립트 (zip은 chrome/dist/에 생성)
+  STORE_LISTING.md     스토어 등록용 설명문/체크리스트 초안
+firefox/               파이어폭스 포팅 (AMO 배포, 안드로이드 포함). 같은 구조에 파이어폭스용 manifest.json·background.js·터치 CSS
 ```
 
 ## Chrome 웹 스토어 등록
 
-1. `powershell -File package.ps1` 실행 → `dist/`에 업로드용 zip 생성
+1. `chrome/` 폴더에서 `powershell -File package.ps1` 실행 → `chrome/dist/`에 업로드용 zip 생성
 2. [Chrome 웹 스토어 개발자 콘솔](https://chrome.google.com/webstore/devconsole)에서 계정 등록 (최초 1회 5달러)
-3. zip 업로드, `STORE_LISTING.md`의 설명문/개인정보처리방침 URL 입력, 스크린샷 첨부
+3. zip 업로드, `chrome/STORE_LISTING.md`의 설명문/개인정보처리방침 URL 입력, 스크린샷 첨부
 4. 심사 제출
 
-자세한 체크리스트는 [STORE_LISTING.md](STORE_LISTING.md) 참고.
+자세한 체크리스트는 [chrome/STORE_LISTING.md](chrome/STORE_LISTING.md) 참고.
 
 ## 알려진 한계
 
